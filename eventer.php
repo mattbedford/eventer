@@ -2,8 +2,8 @@
 
 
 /*
-Plugin Name: Dagora event manager
-Description: Simplified interface to help set up perfect events.
+Plugin Name: Eventer
+Description: An event management interface to help set up perfect events.
 Plugin URI:  https://dagora.ch
 Author:      Matt Bedford
 Version:     2.0
