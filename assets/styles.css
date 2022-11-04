@@ -1,0 +1,47 @@
+#wpbody {
+    
+}
+#wpcontent {
+    padding-left:0 !important;
+    background:white;
+    margin-left:36px !important;
+}
+#adminmenuback, #adminmenu, #adminmenuwrap {
+    width:36px !important;
+}
+.wp-menu-name {
+    position: absolute;
+    left: -999px;
+}
+.navbar {
+    width:100%;
+    height:60px;
+    background-color: #21D4FD;
+    background-image: linear-gradient(19deg, #21D4FD 0%, #B721FF 100%);
+}
+
+.navbar-inner, .navbar-inner .menu ul {
+    display:flex;
+    justify-content:space-between;
+    max-width:1000px;
+    margin:0 auto;
+}
+.navbar-inner {
+    align-items:center;
+}
+.logo {
+    height:30px;
+    width:auto;
+    padding:10px 20px;
+}
+.navbar-inner .menu ul li {
+    margin:0 10px;
+}
+.navbar-inner .menu ul li button {
+    border:none;
+    outline:none;
+    background:none;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}

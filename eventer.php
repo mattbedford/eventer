@@ -53,11 +53,13 @@ function do_eventer() {
 	); 
 }
 add_action( 'admin_menu', 'do_eventer' );
-	
+
+
 //Callback for menu page adds only the div for vue instantiation
 function event_setup() { 
 	echo "<div id='app'></div>";
 }
+
 
 add_action( 'admin_enqueue_scripts', 'load_vue_core' );
 function load_vue_core($hook) {
@@ -78,6 +80,7 @@ function load_vue_core($hook) {
 		false,
 		true
 	);
-	wp_enqueue_script( 'vue_app' );
-	wp_enqueue_script( 'vue_chunks' );
+	wp_enqueue_style( 'vue_styles', plugins_url('assets/styles.css', __FILE__), array(), '');
+	wp_enqueue_script('vue_app');
+	wp_enqueue_script('vue_chunks');
 }
