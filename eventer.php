@@ -57,6 +57,13 @@ add_action( 'admin_menu', 'do_eventer' );
 
 //Callback for menu page adds only the div for vue instantiation
 function event_setup() { 
+	?>
+	<script>
+		jQuery(document).ready(function(){
+			jQuery('#collapse-button').click();
+		})
+	</script>
+	<?php
 	echo "<div id='app'></div>";
 }
 

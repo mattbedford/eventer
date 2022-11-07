@@ -1,11 +1,27 @@
 <template>
   <div>
-    <NavBar @pageSelect="goToPage()" />
+    <NavBar selected="currentPage" @pageSelect="goToPage" />
+    <section class="admin-main" v-if="currentPage == 'setup'">
+      <setup />
+    </section>
+
+    <section class="admin-main" v-if="currentPage == 'badge'">
+      <h3>This is the badge page</h3>
+    </section>
+
+    <section class="admin-main" v-if="currentPage == 'coupon'">
+      <h3>This is the coupon page</h3>
+    </section>
+
+    <section class="admin-main" v-if="currentPage == 'invitation'">
+      <h3>This is the invitations page</h3>
+    </section>
   </div>
 </template>
 
 <script>
 import NavBar from './components/NavBar.vue';
+import setup from './components/setup.vue';
 
 export default {
   name: 'App',
@@ -15,23 +31,12 @@ export default {
     };
   },
   components: {
-    NavBar,
+    NavBar, setup,
   },
   methods: {
-    goToPage: (slug) => {
+    goToPage(slug) {
       this.currentPage = slug;
     },
   },
 };
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

@@ -13,7 +13,7 @@
                   </button>
                 </li>
                 <li><button @click="$emit('pageSelect', 'coupon')">Coupons</button></li>
-                <li><button @click="$emit('pageSelect', 'setup')">Invitations</button></li>
+                <li><button @click="$emit('pageSelect', 'invitation')">Invitations</button></li>
             </ul>
         </div>
     </div>
@@ -22,6 +22,8 @@
 
 <script>
 export default {
-//
+
+  props: ['selected'],
+
 };
 </script>
