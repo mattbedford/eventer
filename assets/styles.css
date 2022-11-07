@@ -52,15 +52,75 @@
     height:100%;
     padding-right:40px;
 }
-.side-column ul li button {
+
+.main-column {
+    flex: 0 1 85%;
+    height:100%;
+}
+
+.admin-main > h2 {
+    color: #37bafd; 
+}
+
+.admin-main > h2 svg {
+ width:20px;
+ margin-bottom:-2px;
+ margin-right:10px;
+ margin-left:5px;
+ fill: #37bafd;
+}
+.submenu li button {
     background:none;
     border:none;
     outline:none;
     height:30px;
     cursor:pointer;
     font-weight:600;
+    width:120px;
+    text-align:center;
 }
-.main-column {
-    flex: 0 1 85%;
-    height:100%;
+.submenu li.active button {
+    background:rgb(210, 210, 210);
+}
+
+
+/*Forms*/
+
+.main-column form {
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    border:1px solid #ddd;
+    border-radius:5px;
+    width:90%;
+    max-width:900px;
+}
+
+.main-column form label {
+    display:flex;
+    flex-direction:column;
+    margin-bottom:10px;
+}
+
+
+form .double {
+    display:flex;
+    justify-content:space-between;
+}
+form .double > label {
+    flex:0 1 45%;
+}
+form input {
+    border-color:#ddd !important;
+}
+form label {
+    color:#555 !important;
+}
+form input[type="submit"] {
+    background:#7fc41c;
+    width:120px;
+    border:none;
+    outline:none;
+    padding:8px 20px;
+    cursor:pointer;
 }
