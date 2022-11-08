@@ -82,6 +82,8 @@
         <form id="badge">
             <label for="badge_template">Badge template
             <input type="file" id="badge_template"/></label>
+            <label for="ticket_price">Ticket price
+            <input type="number" id="ticket_price" v-model="ticket_price"/></label>
             <p>Text positioning badge page 1</p>
             <div class="double">
               <label for="p1x">X coordinate
@@ -132,6 +134,7 @@ export default {
         max_attendees: null,
       },
       badge_template: null,
+      ticket_price: null,
       p1x: null,
       p1y: null,
       p2x: null,
