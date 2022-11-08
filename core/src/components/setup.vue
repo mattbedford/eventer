@@ -49,7 +49,7 @@
             <div class="double">
                 <label for="hubspot-list">Hubspot list ID
                 <input type="text" id="hubspot-list" v-model="apis.list_id"/></label>
-                <label for="tag">Hubspot event tag (used in form to link to Hubspot)
+                <label for="tag">Hubspot event tag (used in form to link to static list)
                 <input type="text" id="tag" v-model="apis.tag"/></label>
             </div>
 
@@ -59,12 +59,46 @@
 
     <div v-show="menuItem == 'venue'" class="main-column">
         <h3>Venue setup</h3>
+        <form id="venue">
+            <label for="venue_name">Name of venue
+            <input type="text" id="venue_name" v-model="venue.name"/></label>
+            <label for="venue_address">Venue address
+            <input type="text" id="venue_address" v-model="venue.address"/></label>
+            <div class="double">
+              <label for="venue_city">Venue city
+              <input type="text" id="venue_city" v-model="venue.city"/></label>
+              <label for="venue_country">Venue country
+              <input type="text" id="venue_country" v-model="venue.country"/></label>
+            </div>
+            <label for="venue_max">Maximum attendees permitted
+            <input type="number" id="venue_max" v-model="venue.max_attendees"/></label>
 
+            <input type="submit" value="Save edits"/>
+        </form>
     </div>
 
     <div v-show="menuItem == 'tickets'" class="main-column">
         <h3>Tickets & badge setup</h3>
+        <form id="badge">
+            <label for="badge_template">Badge template
+            <input type="file" id="badge_template"/></label>
+            <p>Text positioning badge page 1</p>
+            <div class="double">
+              <label for="p1x">X coordinate
+              <input type="number" id="p1x" v-model="venue.city"/></label>
+              <label for="p1y">Y coordinate
+              <input type="number" id="p1y" v-model="venue.country"/></label>
+            </div>
+            <p>Text positioning badge page 2</p>
+            <div class="double">
+              <label for="p2x">X coordinate
+              <input type="number" id="p2x" v-model="venue.city"/></label>
+              <label for="p2y">Y coordinate
+              <input type="number" id="p2y" v-model="venue.country"/></label>
+            </div>
 
+            <input type="submit" value="Save edits"/>
+        </form>
     </div>
   </div>
 </template>
@@ -90,6 +124,18 @@ export default {
         list_id: null,
         hubspot_api_key: null,
       },
+      venue: {
+        name: null,
+        address: null,
+        city: null,
+        country: null,
+        max_attendees: null,
+      },
+      badge_template: null,
+      p1x: null,
+      p1y: null,
+      p2x: null,
+      p2y: null,
     };
   },
 
