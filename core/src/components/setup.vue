@@ -19,7 +19,7 @@
 
     <div v-show="menuItem == 'globals'" class="main-column">
         <h3>Global setup</h3>
-        <form id="globals">
+        <form id="globals" @submit.prevent="sendOptions('globals')">
             <label for="name">Event name
             <input type="text" id="name" v-model="globals.name"/></label>
             <label for="payoff">Event payoff
@@ -106,6 +106,8 @@
 </template>
 
 <script>
+import auth from '@/assets/auth';
+
 export default {
 
   name: 'SetUp',
@@ -141,6 +143,19 @@ export default {
       p2y: null,
     };
   },
-
+  methods: {
+    async sendOptions(dataObj) {
+      const data = JSON.stringify(this[dataObj]);
+      const url = auth.optionsRoute;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+      };
+      fetch(url, { method: 'POST', headers, body: data })
+        .then((result) => {
+          console.log(result);
+        });
+    },
+  },
 };
 </script>

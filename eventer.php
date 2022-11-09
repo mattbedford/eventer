@@ -32,6 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // include dependencies
 require plugin_dir_path( __FILE__ ) . 'event_globals.php';
+require plugin_dir_path( __FILE__ ) . 'api_routes.php';
 
 // On activate, trigger new menu class
 //register_activation_hook( __FILE__, 'do_event_start_up' ); 
