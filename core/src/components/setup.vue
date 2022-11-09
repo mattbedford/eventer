@@ -150,6 +150,7 @@ export default {
       const headers = {
         credentials: 'same-origin',
         'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
       };
       fetch(url, { method: 'POST', headers, body: data })
         .then((result) => {
