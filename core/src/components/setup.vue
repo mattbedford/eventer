@@ -120,8 +120,8 @@ export default {
       menuItem: 'globals',
       announce: null,
       globals: {
-        event_name: null,
-        event_payoff: null,
+        event_name: 'xxxx',
+        event_payoff: 'ccccc',
         event_date: null,
         event_start: null,
         event_end: null,
@@ -166,6 +166,37 @@ export default {
         .then((result) => result.json())
         .then((result) => { this.announce = result; });
     },
+    async getAllOptions() {
+      const url = auth.AllOptionsRoute;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'GET', headers })
+        .then((result) => result.json())
+        .then((result) => {
+          Object.entries(result).forEach(([key]) => {
+            const reskey = result[key][0];
+            const resval = result[key][1];
+            if (this.globals[reskey] || this.globals[reskey] === null) {
+              this.globals[reskey] = resval;
+            }
+            if (this.apis[reskey] || this.apis[reskey] === null) {
+              this.apis[reskey] = resval;
+            }
+            if (this.venue[reskey] || this.venue[reskey] === null) {
+              this.venue[reskey] = resval;
+            }
+            if (this.badges[reskey] || this.badges[reskey] === null) {
+              this.badges[reskey] = resval;
+            }
+          });
+        });
+    },
+  },
+  mounted() {
+    this.getAllOptions();
   },
 };
 </script>
