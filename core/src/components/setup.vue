@@ -16,21 +16,21 @@
             </li>
         </ul>
     </div>
-
+    <message-announce v-if="announce" :message="announce" @closeMessage="killMessage()" />
     <div v-show="menuItem == 'globals'" class="main-column">
         <h3>Global setup</h3>
         <form id="globals" @submit.prevent="sendOptions('globals')">
             <label for="name">Event name
-            <input type="text" id="name" v-model="globals.name"/></label>
+            <input type="text" id="name" v-model="globals.event_name"/></label>
             <label for="payoff">Event payoff
-            <input type="text" id="payoff" v-model="globals.payoff"/></label>
+            <input type="text" id="payoff" v-model="globals.event_payoff"/></label>
             <label for="date">Event date
-            <input type="date" id="date" v-model="globals.date"/></label>
+            <input type="date" id="date" v-model="globals.event_date"/></label>
             <div class="double">
                 <label for="start">Kick-off time
-                <input type="time" id="start" v-model="globals.start"/></label>
+                <input type="time" id="start" v-model="globals.event_start"/></label>
                 <label for="end">Event end time
-                <input type="time" id="end" v-model="globals.end"/></label>
+                <input type="time" id="end" v-model="globals.event_end"/></label>
             </div>
 
             <input type="submit" value="Save edits"/>
@@ -39,18 +39,18 @@
 
     <div v-show="menuItem == 'apis'" class="main-column">
         <h3>APIs setup</h3>
-        <form id="apis">
+        <form id="apis" @submit.prevent="sendOptions('apis')">
             <label for="stripe_key">Stripe API key
-            <input type="text" id="stripe_key" v-model="apis.stripe_api"/></label>
+            <input type="text" id="stripe_key" v-model="apis.alt_stripe_key"/></label>
             <label for="webhook">Stripe webhook key
             <input type="text" id="webhook" v-model="apis.stripe_webhook"/></label>
             <label for="hubspot-api">Hubspot API key
-            <input type="text" id="hubspot-api" v-model="apis.hubspot"/></label>
+            <input type="text" id="hubspot-api" v-model="apis.hubspot_key"/></label>
             <div class="double">
                 <label for="hubspot-list">Hubspot list ID
-                <input type="text" id="hubspot-list" v-model="apis.list_id"/></label>
+                <input type="text" id="hubspot-list" v-model="apis.hubspot_list"/></label>
                 <label for="tag">Hubspot event tag (used in form to link to static list)
-                <input type="text" id="tag" v-model="apis.tag"/></label>
+                <input type="text" id="tag" v-model="apis.event_tag"/></label>
             </div>
 
             <input type="submit" value="Save edits"/>
@@ -59,16 +59,16 @@
 
     <div v-show="menuItem == 'venue'" class="main-column">
         <h3>Venue setup</h3>
-        <form id="venue">
+        <form id="venue" @submit.prevent="sendOptions('venue')">
             <label for="venue_name">Name of venue
-            <input type="text" id="venue_name" v-model="venue.name"/></label>
+            <input type="text" id="venue_name" v-model="venue.venue_name"/></label>
             <label for="venue_address">Venue address
-            <input type="text" id="venue_address" v-model="venue.address"/></label>
+            <input type="text" id="venue_address" v-model="venue.venue_address"/></label>
             <div class="double">
               <label for="venue_city">Venue city
-              <input type="text" id="venue_city" v-model="venue.city"/></label>
+              <input type="text" id="venue_city" v-model="venue.venue_city"/></label>
               <label for="venue_country">Venue country
-              <input type="text" id="venue_country" v-model="venue.country"/></label>
+              <input type="text" id="venue_country" v-model="venue.venue_country"/></label>
             </div>
             <label for="venue_max">Maximum attendees permitted
             <input type="number" id="venue_max" v-model="venue.max_attendees"/></label>
@@ -79,24 +79,24 @@
 
     <div v-show="menuItem == 'tickets'" class="main-column">
         <h3>Tickets & badge setup</h3>
-        <form id="badge">
+        <form id="badge" @submit.prevent="sendOptions('badges')">
             <label for="badge_template">Badge template
             <input type="file" id="badge_template"/></label>
             <label for="ticket_price">Ticket price
-            <input type="number" id="ticket_price" v-model="ticket_price"/></label>
+            <input type="number" id="ticket_price" v-model="badges.ticket_price"/></label>
             <p>Text positioning badge page 1</p>
             <div class="double">
               <label for="p1x">X coordinate
-              <input type="number" id="p1x" v-model="venue.city"/></label>
+              <input type="number" id="p1x" v-model="badges.badge_x"/></label>
               <label for="p1y">Y coordinate
-              <input type="number" id="p1y" v-model="venue.country"/></label>
+              <input type="number" id="p1y" v-model="badges.badge_y"/></label>
             </div>
             <p>Text positioning badge page 2</p>
             <div class="double">
               <label for="p2x">X coordinate
-              <input type="number" id="p2x" v-model="venue.city"/></label>
+              <input type="number" id="p2x" v-model="badges.badge_x_p2"/></label>
               <label for="p2y">Y coordinate
-              <input type="number" id="p2y" v-model="venue.country"/></label>
+              <input type="number" id="p2y" v-model="badges.badge_y_p2"/></label>
             </div>
 
             <input type="submit" value="Save edits"/>
@@ -107,43 +107,53 @@
 
 <script>
 import auth from '@/assets/auth';
+import MessageAnnounce from './MessageAnnounce.vue';
 
 export default {
 
   name: 'SetUp',
+  components: {
+    MessageAnnounce,
+  },
   data() {
     return {
       menuItem: 'globals',
+      announce: null,
       globals: {
-        name: null,
-        payoff: null,
-        date: null,
-        start: null,
-        end: null,
+        event_name: null,
+        event_payoff: null,
+        event_date: null,
+        event_start: null,
+        event_end: null,
       },
       apis: {
-        stripe_api: null,
-        webhook: null,
-        tag: null,
-        list_id: null,
-        hubspot_api_key: null,
+        alt_stripe_key: null,
+        stripe_webhook: null,
+        event_tag: null,
+        hubspot_list: null,
+        hubspot_key: null,
       },
       venue: {
-        name: null,
-        address: null,
-        city: null,
-        country: null,
+        venue_name: null,
+        venue_address: null,
+        venue_city: null,
+        venue_country: null,
         max_attendees: null,
       },
-      badge_template: null,
-      ticket_price: null,
-      p1x: null,
-      p1y: null,
-      p2x: null,
-      p2y: null,
+      badges: {
+        badge_template: null,
+        ticket_price: null,
+        badge_x: null,
+        badge_y: null,
+        badge_x_p2: null,
+        badge_y_p2: null,
+      },
     };
   },
   methods: {
+    killMessage() {
+      this.announce = null;
+    },
     async sendOptions(dataObj) {
       const data = JSON.stringify(this[dataObj]);
       const url = auth.optionsRoute;
@@ -153,9 +163,8 @@ export default {
         'X-WP-Nonce': this.nonce,
       };
       fetch(url, { method: 'POST', headers, body: data })
-        .then((result) => {
-          console.log(result);
-        });
+        .then((result) => result.json())
+        .then((result) => { this.announce = result; });
     },
   },
 };

@@ -21,6 +21,7 @@
 </template>
 
 <script>
+// eslint-disable-next-line
 import NavBar from './components/NavBar.vue';
 import setup from './components/setup.vue';
 
