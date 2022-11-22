@@ -23,7 +23,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 with this program. If not, visit: https://www.gnu.org/licenses/
 
-
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -36,11 +35,13 @@ require plugin_dir_path( __FILE__ ) . 'api_routes.php';
 require plugin_dir_path( __FILE__ ) . 'event_api_callbacks.php';
 
 // On activate, trigger new menu class
-//register_activation_hook( __FILE__, 'do_event_start_up' ); 
-
-//function do_event_start_up() {
-	
-//}
+register_activation_hook( __FILE__, 'do_event_start_up' ); 
+function do_event_start_up() {
+	require plugin_dir_path( __FILE__ ) . '/set-up/database_set_up.php';
+	require plugin_dir_path( __FILE__ ) . '/set-up/create_pages.php';
+	run_database_set_up();
+	run_page_creation();
+}
 
 //Create menu page
 function do_eventer() {

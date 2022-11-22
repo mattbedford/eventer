@@ -3,6 +3,44 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+function all_event_options() {
+    $all_options = array(
+        "event_name",
+        "event_payoff",
+        "event_date",
+        "event_start",
+        "event_end",
+        "alt_stripe_key",
+        "stripe_webhook",
+        "event_tag",
+        "hubspot_list",
+        "hubspot_key",
+        "venue_name",
+        "venue_address",
+        "venue_city",
+        "venue_country",
+        "max_attendees",
+        "badge_template",
+        "ticket_price",
+        "badge_x",
+        "badge_y",
+        "badge_x_p2",
+        "badge_y_p2",
+    );
+    $return_array = array();
+
+    foreach($all_options as $single_opt) {
+        $existing_option = get_option($single_opt);
+        if(!empty($existing_option) && $existing_option !== FALSE) {
+            $return_array[] = array($single_opt, $existing_option);
+        }
+    }
+
+    echo json_encode($return_array);
+    die();
+}
+
+
 function set_the_options($args) {
     $data = $args->get_json_params();
 
