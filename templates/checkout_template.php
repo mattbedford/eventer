@@ -13,7 +13,7 @@ if(get_option('ticket_price') === false || get_option('event_name') === false) {
 
 echo '<script>var fullTicketPrice ="' . get_option('ticket_price') . '";</script>';
 //CHANGE THIS! Var describing where the form will try to submit to.
-$stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout_scripts/checkout_index.php";
+$stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout_scripts/checkout_init.php";
 ?>  
 
 
@@ -134,7 +134,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout_scrip
             <h4>1 x admittance to <?php echo get_option('event_name') ?> <span>
             <?php echo get_option('venue_name') . " - " .get_option('venue_city') . ", " . get_option('venue_country') . "on " .
             fix_the_date(get_option('event_date')) . " @ " . get_option('event_start') . "AM"; ?></span></h4>
-            <h3 id="price-to-pay"><?php echo get_option('ticket_price'); ?></h3>
+            <h3 id="price-to-pay"><?php echo get_option('ticket_price') . " CHF"; ?></h3>
             <img class="payment-methods" src="<?php echo site_url(); ?>/wp-content/uploads/2022/07/payment-methods-768x128-1.png"><br>
 
             <label for="coupon">Do you have a coupon code?</label>

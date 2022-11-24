@@ -1,3 +1,5 @@
+//const { stringifyQuery } = require("vue-router");
+
 	jQuery('input').blur(function(){
 		jQuery(this).addClass('notok'); 
 	});

@@ -3,11 +3,10 @@ $path = preg_replace('/wp-content.*$/','',__DIR__);
 include($path.'wp-load.php'); 
 if( ! defined( 'ABSPATH' ) ) exit; 
 require_once("vendor/autoload.php"); 
-require_once('add_registrant_to_hubspot.php');
 
 //First grab everything off user's form submission.
 //validate all with: stripslashes(strip_tags(trim($code)));
-require_once('form_server_validation.php');
+require_once('form_validation.php');
 $form_is_valid = validate_the_form($_POST);
 
 //form_is_valid is an array with 3 elements: [0] = status, [1] = problem, [2] = afflicted fields 
@@ -30,70 +29,53 @@ if(!empty($_POST['tags'])) {
 $cleaned_form_data['tags'] = preg_replace("/,$/", '', $tag_string);
 	
 //OK. Form is valid. Let's move on.
-//Send this user into hubspot.
-$hs_response = set_up_and_send_new_contact($cleaned_form_data); //hs id is now $hs_response->vid;
-
 $price_calc = get_option('ticket_price');
 $amount_to_pay = preg_replace("/[^0-9.]/", "", $price_calc);
 
-//Only bother this lot if coupon has been supplied
+//Only bother with this lot if coupon has been supplied
 if(isset($_POST['coupon']) && !empty($_POST['coupon'])) {
 	//Set up coupon vars
 	$coupons_list = array();
 	$coupons_lookup = array();
 	$coupon_discount = 0;
-	$coupon_valid = false;
 
 	//Grab existing coupons from DB if any.
-	global $wpdb;
-	$db_coupons = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}coupons WHERE coupon_status LIKE 'live'" );
+	$invitation_args = array(
+		"post_type" => 'invitation'
+		"numberposts" => -1,
+		'meta_query' => array(
+			array(
+				'key'   => 'invitation_status',
+				'value' => 'live',
+			)
+		)
+	);
+	$db_coupons = get_posts($invitation_args);
 	foreach ( $db_coupons as $row ) {
-		$single_code = strtoupper($row->code);
+		$single_code = strtoupper($row->post_title);
 		if($single_code != "") {
-			$coupons_list[] = $row->code;
-			$coupons_lookup[strtoupper($row->code)] = $row->percent_discount;
+			$coupons_list[] = $row->post_title;
+			$coupons_lookup[strtoupper($row->post_title)] = $row->percent_value;
 		}
 	}
 
 	//Check if coupon is present and valid
 	//First off though, validate it
 	if(isset($_POST['coupon']) && $_POST['coupon'] != "") {
-		$sanitized_coupon = stripslashes(strip_tags(trim($_POST['coupon'])));
+		$sanitized_coupon = strtoupper(stripslashes(strip_tags(trim($_POST['coupon']))));
 	}
 
-	if(in_array(strtoupper($sanitized_coupon), $coupons_list)) {
-		$coupon_valid = true;
-	}
-
-	//BAIL if coupon present but NOT correct
-	if($coupon_valid != true) {
+	//BAIL if coupon present in form but NOT in DB
+	if(!in_array($sanitized_coupon, $coupons_list)) {
 		header("Location: " . site_url() . "/checkout/?status=error&msg=badcoupon&errs=coupon");
 		exit;
 	}
 
+
 	//max uses check routine: Bail if coupon max uses is reached, but only for NON GUEST coupons.
-	//Note that coupon guest status could have been mutated by invites under same name, so check those too.
-	$code_check = strtoupper($sanitized_coupon);
-	$assoc_invitations = get_posts(array('post_type' => 'invitation', 'title' => $code_check));
-	$coupon_db_row = null;
-	foreach($db_coupons as $item => $val) {
-		if($val->code == $code_check) {
-			$coupon_db_row = $val;
-		}
-	}
-	$our_coupon_type = $coupon_db_row->is_guest;
-	$our_coupon_limit = $coupon_db_row->max_uses;
-	$our_coupon_uses = $coupon_db_row->actual_uses;
-	$guest_status = false;
-	foreach($assoc_invitations as $single_invite) {
-		$x = get_post_meta($single_invite->ID, 'for_guests', true);
-		if($x === true || $x === 1 || $x === "1" ) {
-			$guest_status = true;
-		}
-	}
-	if($our_coupon_type === 1 || $our_coupon_type === "1" || $our_coupon_type === true) {
-		$guest_status = true;
-	}
+	
+
+	
 	if($guest_status === false && $our_coupon_uses >= $our_coupon_limit) {
 		header("Location: " . site_url() . "/checkout/?status=error&msg=couponlimit&errs=coupon");
 		exit();

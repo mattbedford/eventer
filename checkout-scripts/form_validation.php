@@ -52,7 +52,7 @@ function full_field_check($data) {
   		$res = send_return_array('error', 'invalid email', array("email"));
 		return $res;
 	}
-	
+
 	if(!empty($title_field)) $data['title'] = $title_field;
 	if(!empty($mobile_field)) $data['mobile'] = $mobile_field;
 	
@@ -80,4 +80,10 @@ function sanitize_fields($field) {
 
 function send_return_array($status, $problem, $fields) {
 	return array($status, $problem, $fields);
+}
+
+function getTrimmedUrl($link) {
+    $str = str_replace(["www.","https://","http://"],[''],$link);
+    $link = explode("/",$str);
+    return strtolower($link[0]);                
 }
