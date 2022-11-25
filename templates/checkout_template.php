@@ -13,7 +13,7 @@ if(get_option('ticket_price') === false || get_option('event_name') === false) {
 
 echo '<script>var fullTicketPrice ="' . get_option('ticket_price') . '";</script>';
 //CHANGE THIS! Var describing where the form will try to submit to.
-$stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout_scripts/checkout_init.php";
+$stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scripts/checkout_init.php";
 ?>  
 
 

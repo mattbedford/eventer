@@ -2,11 +2,11 @@
 $path = preg_replace('/wp-content.*$/','',__DIR__);
 include($path.'wp-load.php'); 
 if( ! defined( 'ABSPATH' ) ) exit; 
-require_once("vendor/autoload.php"); 
-
-//First grab everything off user's form submission.
-//validate all with: stripslashes(strip_tags(trim($code)));
+require_once plugin_dir_path( __DIR__ ) . "vendor/autoload.php"; 
+require_once plugin_dir_path( __DIR__ ) . "registrations/add_new_registrant.php"; 
 require_once('form_validation.php');
+
+//First grab everything off user's form submission and validate (form_validation.php).
 $form_is_valid = validate_the_form($_POST);
 
 //form_is_valid is an array with 3 elements: [0] = status, [1] = problem, [2] = afflicted fields 
@@ -19,6 +19,7 @@ if($form_is_valid[0] === "error") {
 }
 $cleaned_form_data = $form_is_valid[2];
 
+//THIS bit probably belongs someplace else....
 //Squash tags into a string for sending
 $tag_string = "";
 if(!empty($_POST['tags'])) {
@@ -30,104 +31,52 @@ $cleaned_form_data['tags'] = preg_replace("/,$/", '', $tag_string);
 	
 //OK. Form is valid. Let's move on.
 $price_calc = get_option('ticket_price');
-$amount_to_pay = preg_replace("/[^0-9.]/", "", $price_calc);
+$amount_to_pay = intval(preg_replace("/[^0-9.]/", "", $price_calc));
+$sanitized_coupon = "none";
 
+
+
+//COUPONS ROUTINE
 //Only bother with this lot if coupon has been supplied
 if(isset($_POST['coupon']) && !empty($_POST['coupon'])) {
-	//Set up coupon vars
-	$coupons_list = array();
-	$coupons_lookup = array();
-	$coupon_discount = 0;
 
-	//Grab existing coupons from DB if any.
-	$invitation_args = array(
-		"post_type" => 'invitation'
-		"numberposts" => -1,
-		'meta_query' => array(
-			array(
-				'key'   => 'invitation_status',
-				'value' => 'live',
-			)
-		)
-	);
-	$db_coupons = get_posts($invitation_args);
-	foreach ( $db_coupons as $row ) {
-		$single_code = strtoupper($row->post_title);
-		if($single_code != "") {
-			$coupons_list[] = $row->post_title;
-			$coupons_lookup[strtoupper($row->post_title)] = $row->percent_value;
-		}
-	}
+	$sanitized_coupon = strtoupper(stripslashes(strip_tags(trim($_POST['coupon']))));
+	$cleaned_form_data['coupon'] = $sanitized_coupon;
+	$coupon_result = coupons_routine($sanitized_coupon, $amount_to_pay);
 
-	//Check if coupon is present and valid
-	//First off though, validate it
-	if(isset($_POST['coupon']) && $_POST['coupon'] != "") {
-		$sanitized_coupon = strtoupper(stripslashes(strip_tags(trim($_POST['coupon']))));
-	}
-
-	//BAIL if coupon present in form but NOT in DB
-	if(!in_array($sanitized_coupon, $coupons_list)) {
+	if ($coupon_result === "badcoupon") {
 		header("Location: " . site_url() . "/checkout/?status=error&msg=badcoupon&errs=coupon");
 		exit;
 	}
 
-
-	//max uses check routine: Bail if coupon max uses is reached, but only for NON GUEST coupons.
-	
-
-	
-	if($guest_status === false && $our_coupon_uses >= $our_coupon_limit) {
+	if ($coupon_result === "couponlimit") {
 		header("Location: " . site_url() . "/checkout/?status=error&msg=couponlimit&errs=coupon");
 		exit();
 	}
-	//End coupon max uses check routine
-	
 
-	//Check discount amount of supplied coupon. If no discount set we have a dud coupon: bail.
-	$supplied_coupon = strtoupper($sanitized_coupon);
-	$coupon_discount = $coupons_lookup[$supplied_coupon];
-	if(!isset($coupon_discount)) {
+	if ($coupon_result === "couponnotexist") {
 		header("Location: " . site_url() . "/checkout/?status=error&msg=couponnotexist&errs=coupon");
 		exit;
 	}
-	
-	
-	//Figure out amount to apy
-	$filtered_ticket_price = $amount_to_pay; //750
 
-	$disc_perc = $filtered_ticket_price / 100; //Full price as a percentage
-	$amount_to_discount = $disc_perc * $coupon_discount; //value to knock off main price
-	$amount_to_pay = $filtered_ticket_price - $amount_to_discount;//Final price to pay on checkout
-
-	//Bail from stripe session if coupon present and correct and if price to pay is non-zero
-	if(isset($supplied_coupon) && in_array($supplied_coupon, $coupons_list) && $amount_to_pay <= 0) {
-		//Look up coupon and adjust uses to +1
-		//Add user to hubspot registration list
-		require_once('update_coupon_count.php');
-		add_one_coupon_usage($supplied_coupon);
-		
+	if ($coupon_result === "zerotopay") {	
 		//Add user to registered attendees list
-		require_once 'user_registration_script.php';
-		$registration_data = array();
-		$registration_data['fname'] = $form_is_valid[2]['fname'];
-		$registration_data['lname'] = $form_is_valid[2]['lname'];
-		$registration_data['email'] = $form_is_valid[2]['email'];
-		$registration_data['role'] = $form_is_valid[2]['role'];
-		$registration_data['company'] = $form_is_valid[2]['company'];
-		$registration_data['coupon'] = $supplied_coupon;
-		add_new_registration($registration_data);
+		register_new_attendee($cleaned_form_data, 0, "Free entry");
 		
-		//connect newly-registered user to the hs registration list 
-		set_up_and_send_list_add($hs_response->vid);
-		header("Location: " . site_url() . "/success?coupon=" . $supplied_coupon);
+		//Send user to success page, bypassing Stripe entirely 
+		header("Location: " . site_url() . "/success?coupon=" . $sanitized_coupon);
 		exit;
 	}
-} else {
-	$supplied_coupon = "none";
+
+	//Else... update amount to pay with number from coupons routine
+	$amount_to_pay = $coupon_result;
 }
 
+
 //Either no coupon was provided, or one was provided but total left to pay is non-zero, so we go to Stripe.
-$customer_mail = $form_is_valid[2]['email'];
+$customer_mail = $cleaned_form_data['email'];
+$cleaned_form_data['coupon'] = $sanitized_coupon;
+$registration_id = register_new_attendee($cleaned_form_data, $amount_to_pay, "Pending");
 
 $stripe_api_access = get_option('alt_stripe_key');
 \Stripe\Stripe::setApiKey($stripe_api_access);
@@ -136,8 +85,7 @@ header('Content-Type: application/json');
 $YOUR_DOMAIN = site_url();
 
 $event_name = get_option('event_name');
-$real_amount = $amount_to_pay;
-$amount = intval($real_amount*100);
+$amount = intval($amount_to_pay*100);
 
 $checkout_session = \Stripe\Checkout\Session::create([
   'customer_email' => $customer_mail,
@@ -159,4 +107,62 @@ $checkout_session = \Stripe\Checkout\Session::create([
 
 header("HTTP/1.1 303 See Other");
 header("Location: " . $checkout_session->url);
+
+
+
+function coupons_routine($sanitized_coupon, $amount_to_pay) {
+	$coupon_discount = 0;
+
+	$invitation_object = get_page_by_title( $sanitized_coupon, OBJECT, 'invitation' );
+		
+	//BAIL if coupon present in form but NOT in DB
+	if($invitation_object === null || empty($invitation_object) || $invitation_object === false) {
+		return "badcoupon";
+	}
+
+	//Grab meta about invitation
+	$invitation_post_id = $invitation_object->ID;
+	$max_uses = get_post_meta($invitation_post_id, 'max_uses', true);
+	$actual_uses = get_post_meta($invitation_post_id, 'actual_uses', true);
+	$discount = get_post_meta($invitation_post_id, 'percentage_value', true);
+	$guest_status = get_post_meta($invitation_post_id, 'for_guests', true);
+
+	//Handling cases where data is not set in coupon
+	if( empty($max_uses) ) {
+		$max_uses = 999;
+	}
+
+	if( empty($actual_uses) ) {
+		$actual_uses = 0;
+	}
+
+	if( empty($discount) ) {
+		$discount = 0;
+	}
+
+	// Bail if coupon max uses is reached, but only for NON GUEST coupons 
+	// (assume nobody is a guest unless explicitly set as guest).
+	if($guest_status === false && $actual_uses >= $max_uses) {
+		return "couponlimit";
+	}
+
+	//Bail if no discount amount set, thus we have a dud coupon.
+	if(!isset($discount) || $discount === false) {
+		return "couponnotexist";
+	}
+
+	//Figure out amount to pay
+	$disc_perc = $amount_to_pay / 100; //Full price as a percentage
+	$amount_to_discount = $disc_perc * $discount; //value to knock off main price
+	$amount_to_pay = $amount_to_pay - $amount_to_discount;//Final price to pay on checkout
+
+	//Bail from stripe session if coupon present and correct and if price to pay is non-zero
+	if($amount_to_pay <= 0) {
+		$actual_uses++;
+		update_post_meta($invitation_post_id, 'actual_uses', $actual_uses);
+		return "zerotopay";
+	}
+	return $amount_to_pay;
+}
+
 
