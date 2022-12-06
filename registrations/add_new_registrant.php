@@ -8,7 +8,7 @@ function register_new_attendee($user_data, $amount_paid, $status) {
     //Log incoming data
     $t = date("Y-m-d h:i A", time());
     file_put_contents('registration-log.txt', "NEW REGISTRATION" . "\n", FILE_APPEND);
-    file_put_contents('registration-log.txt', "Paid: " . $amount_paid . " | Status: " . $status . " TIME: " . $t . "\n", FILE_APPEND);
+    file_put_contents('registration-log.txt', "Billed: " . $amount_paid . " | Status: " . $status . " TIME: " . $t . "\n", FILE_APPEND);
 	file_put_contents('registration-log.txt', print_r($user_data, true . "\n \n"), FILE_APPEND);
 
     global $wpdb;
@@ -54,7 +54,7 @@ function register_new_attendee($user_data, $amount_paid, $status) {
 		) 
 	);
 
-    if($status == "pending") {
+    if($status == "pending" || $status == "Pending") {
         if($wpdb->insert_id !== false) {
             $lastid = $wpdb->insert_id;
             return $lastid;

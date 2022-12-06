@@ -89,7 +89,7 @@ $amount = intval($amount_to_pay*100);
 
 $checkout_session = \Stripe\Checkout\Session::create([
   'customer_email' => $customer_mail,
-  'client_reference_id' => // ????????????????? xxxxxxxxxxxxxxx dbID?????
+  'client_reference_id' => $registration_id, // database id of this persons registration
   'line_items' => [[
       'price_data' => [
         'currency' => 'chf',
@@ -156,7 +156,7 @@ function coupons_routine($sanitized_coupon, $amount_to_pay) {
 	$amount_to_discount = $disc_perc * $discount; //value to knock off main price
 	$amount_to_pay = $amount_to_pay - $amount_to_discount;//Final price to pay on checkout
 
-	//Bail from stripe session if coupon present and correct and if price to pay is non-zero
+	//Bail from stripe session if coupon present and correct and if price to pay is zero
 	if($amount_to_pay <= 0) {
 		$actual_uses++;
 		update_post_meta($invitation_post_id, 'actual_uses', $actual_uses);
