@@ -27,6 +27,21 @@ function checkout_setup( $template ) {
 add_action( 'template_include', 'checkout_setup' );
 
 
+function success_page_setup( $template ) {
+
+	if(get_option('ticket_price') === false) return;
+	if ( is_page( 'success' )) {
+
+			$plugindir = dirname( __FILE__ );
+			$template = $plugindir . '/templates/success_template.php';
+	}
+	return $template;
+
+}
+add_action( 'template_include', 'success_page_setup' );
+
+
+
 //Form error handling 
 add_action('wp_footer', 'show_code_error');
 function show_code_error() {

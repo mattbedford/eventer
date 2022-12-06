@@ -89,7 +89,7 @@ $amount = intval($amount_to_pay*100);
 
 $checkout_session = \Stripe\Checkout\Session::create([
   'customer_email' => $customer_mail,
-  'client_reference_id' => $hs_response->vid,
+  'client_reference_id' => // ????????????????? xxxxxxxxxxxxxxx dbID?????
   'line_items' => [[
       'price_data' => [
         'currency' => 'chf',
@@ -101,7 +101,7 @@ $checkout_session = \Stripe\Checkout\Session::create([
       'quantity' => 1,
    ]],
   'mode' => 'payment',
-  'success_url' => $YOUR_DOMAIN . '/success?coupon=' . $supplied_coupon . '&session_id={CHECKOUT_SESSION_ID}',
+  'success_url' => $YOUR_DOMAIN . '/success?coupon=' . $cleaned_form_data['coupon'] . '&session_id={CHECKOUT_SESSION_ID}',
   'cancel_url' => $YOUR_DOMAIN . '/checkout',
 ]);
 

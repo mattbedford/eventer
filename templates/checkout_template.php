@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: Alt checkout
+ * Template Name: Checkout template
  */
 
 get_header();
