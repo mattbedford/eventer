@@ -101,3 +101,13 @@ function set_the_options($args) {
     echo json_encode($return_string);
     die();
 }
+
+
+function all_event_registrations() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'registrations';
+    $result = $wpdb->get_results ( "SELECT * FROM $table" );
+
+    echo json_encode($result);
+    die();
+}
