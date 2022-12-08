@@ -111,3 +111,17 @@ function all_event_registrations() {
     echo json_encode($result);
     die();
 }
+
+
+function edit_registration($data) {
+    $registration = $data->get_json_params();
+    $reg_id = $registration['id'];
+    $reg_action = $registration['command'];
+
+    // Based on command given, we either channel the request into one of 3 different actions: to create, edit, or delete a registration.
+
+
+    echo json_encode($registration);
+    die();
+
+}

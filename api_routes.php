@@ -36,3 +36,14 @@ add_action('rest_api_init', function () {
         }
     ));
   });
+
+//Registrations CRUD - site_url()/wp-json/core-vue/edit-registration
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/edit-registration',array(
+        'methods'  => 'POST',
+        'callback' => 'edit_registration',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });

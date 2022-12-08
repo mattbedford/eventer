@@ -74,13 +74,25 @@
 
           <h2>Sign-up details</h2>
           <ul>
-            <li>Billed: CHF {{oneToEdit.paid}}</li>
-            <li>Payment status: {{oneToEdit.payment_status}}</li>
-            <li>Sign-up date: <span v-html="registrationDate(oneToEdit)"></span></li>
-            <li>User interests: {{oneToEdit.interests}}</li>
+            <li>Coupon: <strong>{{oneToEdit.coupon_code}}</strong></li>
+            <li>Billed: <strong>CHF {{oneToEdit.paid}}</strong></li>
+            <li>Payment status: <strong>{{oneToEdit.payment_status}}</strong></li>
+            <li>Sign-up date: <strong><span v-html="registrationDate(oneToEdit)">
+            </span></strong></li>
+            <li>User interests: <strong>{{oneToEdit.interests.replaceAll(',', ', ')}}</strong></li>
           </ul>
 
-          <input class="" type="submit" value="Save edits">
+          <button
+            class="save-edits form-button"
+            type="button" @click="editRegistration('save')">
+            Save edits
+          </button>
+          <button
+            class="delete-registration form-button"
+            type="button"
+            @click="editRegistration('kill')">
+            Delete registration
+          </button>
         </form>
       </div>
     </div>
@@ -149,6 +161,20 @@ export default {
       fetch(url, { method: 'GET', headers })
         .then((result) => result.json())
         .then((result) => { this.registrationsList = result; });
+    },
+    async editRegistration(cmd) {
+      this.oneToEdit.command = cmd;
+      const data = JSON.stringify(this.oneToEdit);
+      const url = auth.editRegistrations;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'POST', headers, body: data })
+        .then(this.oneToEdit = null)
+        .then((result) => result.json())
+        .then((result) => { this.announce = result; }); // NEED TO INCLUDE MSG ANNUONCE COMPONENT
     },
     editButton(rowObj) {
       const z = rowObj.id;
