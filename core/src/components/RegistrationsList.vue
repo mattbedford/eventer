@@ -82,17 +82,19 @@
             <li>User interests: <strong>{{oneToEdit.interests.replaceAll(',', ', ')}}</strong></li>
           </ul>
 
-          <button
-            class="save-edits form-button"
-            type="button" @click="editRegistration('save')">
-            Save edits
-          </button>
-          <button
-            class="delete-registration form-button"
-            type="button"
-            @click="editRegistration('kill')">
-            Delete registration
-          </button>
+          <div class="double">
+            <button
+              class="save-edits form-button"
+              type="button" @click="editRegistration('save')">
+              Save edits
+            </button>
+            <button
+              class="delete-registration form-button"
+              type="button"
+              @click="editRegistration('kill')">
+              Delete registration
+            </button>
+          </div>
         </form>
       </div>
     </div>

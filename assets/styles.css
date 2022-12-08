@@ -125,6 +125,17 @@ form input[type="submit"] {
     cursor:pointer;
 }
 
+/*Plugin form customizations*/
+.vgt-wrap.black-rhino td,
+.vgt-wrap.black-rhino th {
+    font-size:12px;
+    padding:5px 15px;
+}
+.vgt-wrap__footer * {
+    font-size:12px !important;
+    color:white !important;
+}
+
 /*Message box*/
 .message-announce {
     position:absolute;
@@ -202,4 +213,21 @@ form input[type="submit"] {
     outline:none;
     width:40px;
     cursor:pointer;
+}
+
+.form-button {
+    display:inline-block !important;
+    width:140px;
+    border:none;
+    outline:none;
+    cursor:pointer;
+    padding:8px 12px;
+    color:white;
+}
+
+.save-edits {
+    background:#7fc41c;
+}
+.delete-registration {
+background: #d76163;
 }
