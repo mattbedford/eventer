@@ -86,7 +86,7 @@
 
 /*Forms*/
 
-.main-column form {
+.main-column form, .edit-shelf form {
     display:flex;
     flex-direction:column;
     padding:20px;
@@ -96,7 +96,7 @@
     max-width:900px;
 }
 
-.main-column form label {
+.main-column form label, .edit-shelf form label {
     display:flex;
     flex-direction:column;
     margin-bottom:10px;
@@ -151,5 +151,55 @@ form input[type="submit"] {
     text-align:center;
     padding:0;
     margin:0;
+    cursor:pointer;
+}
+
+/*Modal shelf on form row edit*/
+.edit-shelf {
+    position:fixed;
+    overflow-y:scroll;
+    min-height:99.9vh;
+    height:100%;
+    right:0;
+    top:0;
+    width:60vw;
+    max-width:700px;
+    background:white;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.07), 
+                0 2px 4px rgba(0,0,0,0.07), 
+                0 4px 8px rgba(0,0,0,0.07), 
+                0 8px 16px rgba(0,0,0,0.07),
+                0 16px 32px rgba(0,0,0,0.07), 
+                0 32px 64px rgba(0,0,0,0.07);
+}
+.content-wrap {
+    height: 90vh;
+    padding: 50px 100px 250px 50px;
+}
+
+.options-title {
+    display:block;
+    margin-bottom:10px;
+    padding-top:30px;
+}
+.options-title * {
+    display:inline;
+    color:#37bafd;
+    fill:#37bafd;
+}
+.options-title svg {
+    width:20px;
+    margin-bottom:-3px;
+}
+
+
+.close-button {
+    position:absolute;
+    top:75px;
+    right:100px;
+    background:none;
+    border:none;
+    outline:none;
+    width:40px;
     cursor:pointer;
 }

@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import VScrollLock from 'v-scroll-lock';
 import App from './App.vue';
 
 // eslint-disable-next-line
@@ -18,3 +19,5 @@ Vue.mixin({
 new Vue({
   render: (h) => h(App),
 }).$mount('#app');
+
+Vue.use(VScrollLock);
