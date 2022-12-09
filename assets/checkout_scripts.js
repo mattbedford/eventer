@@ -65,26 +65,26 @@
 				 switch (result) {
 					  case 'free':
 						console.log('Free ticket');
-						 jQuery('#price-to-pay').html('0.00 CHF');
+						 jQuery('#price-to-pay').html('CHF 0.00');
 						 jQuery('#coupon-message').html('Discount code applied.');
 						break;
 					  case 'no':
 						 console.log('Coupon not valid');
-						 jQuery('#price-to-pay').html(fullTicketPrice);
-						 jQuery('#coupon-message').html('Sorry. This coupon seems to not be valid. Please check.');
+						 jQuery('#price-to-pay').html('CHF ' + fullTicketPrice);
+						 jQuery('#coupon-message').html('Sorry. This coupon does not seem to be valid. Please check.');
 						 break;
 					  case 'max':
 						 console.log('Coupon not valid');
-						 jQuery('#price-to-pay').html(fullTicketPrice);
+						 jQuery('#price-to-pay').html('CHF ' + fullTicketPrice);
 						 jQuery('#coupon-message').html('Sorry. The maximum uses for this coupon has been reached.');
 						 break;
 					  case '0':
 						console.log('There has been an error');
-						  jQuery('#price-to-pay').html(fullTicketPrice);
+						  jQuery('#price-to-pay').html('CHF ' + fullTicketPrice);
 						  jQuery('#coupon-message').html('Sorry. There has been an error with the system. Please check back later.');
 						break;
 					  default:
-						jQuery('#price-to-pay').html(result + " CHF");
+						jQuery('#price-to-pay').html('CHF ' + result);
 						jQuery('#coupon-message').html('Discount code applied.');
 					}
 					jQuery('#coupon-message').slideDown();

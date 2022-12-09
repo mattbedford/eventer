@@ -103,7 +103,7 @@ add_action( 'wp_ajax_nopriv_check_submitted_coupon', 'check_submitted_coupon' );
 function check_submitted_coupon() {
 	check_ajax_referer( 'secure_nonce_name', 'sureandsecret' );
 	$coupon_to_check =  htmlspecialchars( stripslashes( trim( $_POST['submitted_coupon'] ) ) );
-	//require('validate_live_coupon.php'); <------better add this back in
+	require_once(dirname( __DIR__ ) . '/eventer/checkout-scripts/coupon_validation_tool.php');
 	$res = live_check_my_coupon($coupon_to_check);
 	echo json_encode($res);
 	die();
