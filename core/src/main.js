@@ -20,4 +20,8 @@ new Vue({
   render: (h) => h(App),
 }).$mount('#app');
 
-Vue.use(VScrollLock);
+Vue.use(VScrollLock, {
+  bodyScrollOptions: {
+    reserveScrollBarGap: true,
+  },
+});

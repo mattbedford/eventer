@@ -1,6 +1,7 @@
 <template>
   <div class="message-announce">
-    <p>{{message}}</p>
+    <h2>{{message[0]}}</h2>
+    <p>{{message[1]}}</p>
     <button class="closer" @click="$emit('closeMessage')">&#x2716;</button>
   </div>
 </template>
@@ -10,8 +11,10 @@
 export default {
   props: {
     message: {
-      type: String,
-      default: 'Options saved',
+      type: Array,
+      default() {
+        return ['All OK', 'Options saved.'];
+      },
     },
   },
 };
