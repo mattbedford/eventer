@@ -135,7 +135,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
             <?php echo get_option('venue_name') . " - " .get_option('venue_city') . ", " . get_option('venue_country') . "on " .
             fix_the_date(get_option('event_date')) . " @ " . get_option('event_start') . "AM"; ?></span></h4>
             <h3 id="price-to-pay"><?php echo get_option('ticket_price') . " CHF"; ?></h3>
-            <img class="payment-methods" src="<?php echo site_url(); ?>/wp-content/uploads/2022/07/payment-methods-768x128-1.png"><br>
+            <img class="payment-methods" src="<?php echo site_url(); ?>/wp-content/plugins/eventer/assets/payment-methods.png"><br>
 
             <label for="coupon">Do you have a coupon code?</label>
             <div class="coupon-holder">

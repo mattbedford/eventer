@@ -258,3 +258,88 @@ function sanitize_it($el) {
     $sanitized_el = htmlspecialchars(strip_tags(trim($el)));
     return $sanitized_el;
 }
+
+function all_event_coupons() {
+    $args = array(
+        'post_type' => 'invitation',
+        'numberposts' => -1,
+        'fields' => 'ids'
+    );
+    $invitations = get_posts($args);
+    $invitation_array = array();
+    $n = 0;
+
+    foreach($invitations as $sing_inv) {
+        //Use $related to check if we have a registered post of this recipient or if it's a random person
+        $related = get_post_meta($sing_inv, 'related_post', true);
+        if(empty($related) || $related == false) {
+            //If no related and registered user...
+            $related_name = get_post_meta($sing_inv, 'recipient', true);
+            $related_id = "other";
+        } else {
+            //But if we do have one...
+            $related_name = get_the_title($related);
+            $related_id = $related;
+        }
+
+        $headliners = get_post_meta($sing_inv, 'custom_headliners', false);
+        $invitation_array[$n]['with_headliners'] = "standard";
+        if(!empty($headliners)) {
+            $invitation_array[$n]['with_headliners'] = "custom";
+        }
+        $invitation_array[$n]['invitation_post_id'] = $sing_inv;
+        $invitation_array[$n]['coupon_title'] = get_the_title($sing_inv);
+        $invitation_array[$n]['invitation_type'] = get_post_meta($sing_inv, 'invitation_type', true);
+        $invitation_array[$n]['headliners'] = $headliners;
+        $invitation_array[$n]['recipient_name'] = $related_name;
+        $invitation_array[$n]['recipient_id'] = $related_id;
+        $invitation_array[$n]['max_uses'] = get_post_meta($sing_inv, 'max_uses', true);
+        $invitation_array[$n]['actual_uses'] = get_post_meta($sing_inv, 'actual_uses', true);
+        $invitation_array[$n]['discount'] = get_post_meta($sing_inv, 'percentage_value', true);
+        $invitation_array[$n]['guest_status'] = get_post_meta($sing_inv, 'for_guests', true);
+        $n++;
+    }
+    
+    echo json_encode($invitation_array);
+    die();
+}
+
+function all_people_and_orgs() {
+    $args = array(
+        'post_type' => array('speaker', 'company'),
+        'numberposts' => -1,
+    );
+    $res = get_posts($args);
+
+    $n = 0;
+    $res_array = array();
+    foreach($res as $peep) {
+        $res_array[$n]['id'] = $peep->ID;
+        $res_array[$n]['name'] = $peep->post_title;
+        $n++;
+    }
+    echo json_encode($res_array);
+    die();
+}
+
+function just_the_people() {
+    $args = array(
+        'post_type' => 'speaker',
+        'numberposts' => -1,
+    );
+    $res = get_posts($args);
+
+    $n = 0;
+    $res_array = array();
+    foreach($res as $peep) {
+        $res_array[$n]['id'] = $peep->ID;
+        $res_array[$n]['name'] = $peep->post_title;
+        $n++;
+    }
+    echo json_encode($res_array);
+    die();
+}
+
+function edit_coupon_or_invitation() {
+
+}

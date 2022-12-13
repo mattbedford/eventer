@@ -21,12 +21,12 @@
 
                 <li :class="{active: onPage === 'coupon'}">
                   <button @click="($emit('pageSelect', 'coupon'), selectThis('coupon'))">
-                    Coupons
+                    Coupons & invitations
                   </button></li>
 
                 <li :class="{active: onPage === 'invitation'}">
                   <button @click="($emit('pageSelect', 'invitation'), selectThis('invitation'))">
-                    Invitations
+                    Something else
                   </button></li>
             </ul>
         </div>
