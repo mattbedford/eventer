@@ -282,11 +282,20 @@ function all_event_coupons() {
             $related_id = $related;
         }
 
-        $headliners = get_post_meta($sing_inv, 'custom_headliners', false);
+        $headliners_ids = get_post_meta($sing_inv, 'custom_headliners', false);
+        
         $invitation_array[$n]['with_headliners'] = "standard";
-        if(!empty($headliners)) {
+        $headliners = array();
+
+        if(!empty($headliners_ids)) {
             $invitation_array[$n]['with_headliners'] = "custom";
-        }
+            foreach($headliners_ids as $sing_id) {
+                $headliners[] = intval($sing_id);
+                //$headliners[] = array('id' => $sing_id, 'name' => get_the_title($sing_id));
+            }
+        } 
+
+
         $invitation_array[$n]['invitation_post_id'] = $sing_inv;
         $invitation_array[$n]['coupon_title'] = get_the_title($sing_inv);
         $invitation_array[$n]['invitation_type'] = get_post_meta($sing_inv, 'invitation_type', true);
@@ -340,6 +349,127 @@ function just_the_people() {
     die();
 }
 
-function edit_coupon_or_invitation() {
+function edit_coupon_or_invitation($data) {
+    $x = $data->get_json_params();
+    $y = $x;
+    unset($y['headliners']);
+    $cleaned_data = array_map('sanitize_it', $y); 
+    $cleaned_headliners = array();
 
+    //Sanitize, validate headliners separately then return to cleaned array as they get killed by 'sanitize_it' function.
+    if(!empty($x['headliners'])) {
+        foreach($x['headliners'] as $sing_headliner) {
+            if('publish' === get_post_status( $sing_headliner )) {
+                $cleaned_headliners[] = $sing_headliner;
+            }
+        }
+    }
+    $cleaned_data['headliners'] = $cleaned_headliners;
+    if(!empty($cleaned_data['invitation_post_id'])) {
+        $reg_id = $cleaned_data['invitation_post_id'];
+    }
+    $reg_action = $cleaned_data['command'];
+    
+    switch ($reg_action) {
+        case 'create':
+            $res = create_new_coupon($cleaned_data);
+            break;
+        case 'edit':
+            $res = edit_existing_coupon($cleaned_data);
+            break;
+        case 'delete':
+            $res = delete_existing_coupon($reg_id);
+            break;
+        default: 
+            //If we can't figure it out, bail and return error message.
+            echo json_encode(array('Sorry!', 'Could not identify the correct coupon record to update.'));
+            die();
+        }
+
+    print_r(json_encode($res));
+    die();
+}
+
+function create_new_coupon($data) {
+    $for_guests = $data['guest_status'];
+
+    //If non-named coupon/invitation...
+    if($data['recipient_id'] === "other") {
+        $related_post = null;
+        $given_recipient = $data['recipient_name'];
+    } else {
+    //But if we have a related post instead, then...
+        $related_post = $data['recipient_id'];
+        $given_recipient = null;
+    }
+
+    if(!empty($data['headliners']) && $data['with_headliners'] == "custom") {
+        $new_headliners = $data['headliners'];
+    } else {
+        $new_headliners = null;
+    }
+
+    $args = array(
+        'title' => $data['coupon_title'],
+        'invitation_type' => $data['invitation_type'],
+        'custom_headliners' => $new_headliners,
+        'for_guests' => $for_guests,
+        'related_post' => $related_post,
+        'recipient' => $given_recipient,
+        'percentage_value' => $data['discount'],
+        'max_uses' => $data['max_uses'],
+    );
+
+    $pod = pods('invitation');
+    $new_invitation = $pod->add( $args );
+    if('publish' === get_post_status( $new_invitation )) {
+        return array('Great!', 'New coupon successfully created.');
+    }
+    return array('Uh oh.', 'Something went wrong and we could not save this coupon/invitation. Sorry.');
+}
+function edit_existing_coupon($data) {
+    $id = intval($data['invitation_post_id']);
+    $for_guests = $data['guest_status'];
+
+    //If non-named coupon/invitation...
+    if($data['recipient_id'] === "other") {
+        $related_post = null;
+        $given_recipient = $data['recipient_name'];
+    } else {
+    //But if we have a related post instead, then...
+        $related_post = $data['recipient_id'];
+        $given_recipient = null;
+    }
+
+    if(!empty($data['headliners']) && $data['with_headliners'] == "custom") {
+        $new_headliners = $data['headliners'];
+    } else {
+        $new_headliners = null;
+    }
+
+    $args = array(
+        'title' => $data['coupon_title'],
+        'invitation_type' => $data['invitation_type'],
+        'custom_headliners' => $new_headliners,
+        'for_guests' => $for_guests,
+        'related_post' => $related_post,
+        'recipient' => $given_recipient,
+        'percentage_value' => $data['discount'],
+        'max_uses' => $data['max_uses'],
+    );
+
+    $pod = pods('invitation', $id);
+    $new_invitation = $pod->save( $args );
+    if('publish' === get_post_status( $new_invitation )) {
+        return array('Great!', 'Coupon/invitation ' . $data['coupon_title'] . ' (ID ' . $id . ') was successfully updated.');
+    }
+    return array('Uh oh.', 'Something went wrong and we could not update this coupon/invitation. Sorry.');
+}
+
+function delete_existing_coupon($id_to_delete) {
+    if('publish' === get_post_status( $id_to_delete )) {
+        wp_delete_post($id_to_delete);
+        return array("Success", "Invitation/coupon " . $id_to_delete . " was successfully deleted from the system.");
+    }
+    return array("Hmm...", "Something went wrong and we couldn't find the invitation/coupon you tried to delete.");
 }

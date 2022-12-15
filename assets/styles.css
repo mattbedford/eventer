@@ -129,6 +129,10 @@ form input[type="submit"] {
 }
 
 /*Plugin table customizations*/
+.vgt-wrap.black-rhino {
+    min-width:85%;   
+}
+
 .vgt-wrap.black-rhino td,
 .vgt-wrap.black-rhino th {
     font-size:12px;
@@ -160,7 +164,7 @@ form input[type="submit"] {
 
 /*Message box*/
 .message-announce {
-    position:absolute;
+    position:fixed;
     top:70px;
     left:25%;
     width:600px;
@@ -238,6 +242,15 @@ form input[type="submit"] {
     cursor:pointer;
 }
 
+.checkbox-wrap {
+    display:flex;
+    align-items:center;
+    margin-top:-20px;
+}
+.checkbox-wrap p {
+    padding-bottom:5px;
+    margin-left:10px;
+}
 .form-button {
     display:inline-block !important;
     width:140px;

@@ -10,7 +10,7 @@
             }"
             :pagination-options="{
                 enabled: true,
-                perPage: 50,
+                perPage: 20,
                 position: 'bottom',
             }">
             <div slot="table-actions">
@@ -43,7 +43,8 @@
                         <input type="text" id="code" v-model="couponToEdit.coupon_title"/></label>
 
                         <label for="lname">Discount
-                        <input type="text" id="lname" v-model="couponToEdit.discount"/></label>
+                        <input type="text" id="lname" v-model="couponToEdit.discount"
+                          placeholder="e.g. 75, 50, 100"/></label>
                     </div>
                     <div class="double">
                         <label for="max-uses">Max uses allowed
@@ -57,6 +58,12 @@
                     </div>
 
                     <h2>Invitation details</h2>
+                    <div class="checkbox-wrap">
+                      <input type="checkbox" @change="changeGuestStatus($event)"
+                      v-model="couponToEdit.guest_status" />
+                      <p>Is this for guests?</p>
+                    </div>
+
                     <div class="double">
                         <label for="related-post">Recipient
                         <select name="related-post" v-model="couponToEdit.recipient_id">
@@ -109,27 +116,28 @@
                                 v-show="couponToEdit.with_headliners == 'custom'"
                                 v-model="couponToEdit.headliners"
                                 :options="speakersList"
-                                :reduce="name => name.id"
-                                label="id">
+                                :reduce="speaker => speaker.id"
+                                label="name"
+                                :closeOnSelect="false">
                                 </v-select>
                         </div>
 
                     <div class="double">
                         <button v-if="couponToEdit.invitation_post_id"
                         class="save-edits form-button"
-                        type="button" @click="editCoupon('edit')">
+                        type="button" @click="saveCoupon('edit')">
                         Save edits
                         </button>
                         <button v-else
                         class="save-edits form-button"
-                        type="button" @click="editCoupon('create')">
+                        type="button" @click="saveCoupon('create')">
                         Save edits
                         </button>
                         <button
-                        v-if="couponToEdit.id"
+                        v-if="couponToEdit.invitation_post_id"
                         class="delete-registration form-button"
                         type="button"
-                        @click="editCoupon('delete')">
+                        @click="saveCoupon('delete')">
                         Delete coupon
                         </button>
                     </div>
@@ -145,12 +153,18 @@ import 'vue-good-table/dist/vue-good-table.css';
 import { VueGoodTable } from 'vue-good-table';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
+import MessageAnnounce from './MessageAnnounce.vue';
 
 export default {
   name: 'CouponsManagement',
-  components: { VueGoodTable, vSelect },
+  components: {
+    VueGoodTable,
+    vSelect,
+    MessageAnnounce,
+  },
   data() {
     return {
+      announce: null,
       couponToEdit: null,
       couponsList: [],
       usersList: [],
@@ -196,6 +210,10 @@ export default {
     };
   },
   methods: {
+    killMessage() {
+      this.grabCoupons();
+      this.announce = null;
+    },
     async grabCoupons() {
       this.couponsList = [];
       const url = auth.allCoupons;
@@ -232,6 +250,26 @@ export default {
         .then((result) => result.json())
         .then((result) => { this.speakersList = result; });
     },
+    async saveCoupon(cmd) {
+      if (!this.couponToEdit.coupon_title
+      || !this.couponToEdit.discount
+      || !this.couponToEdit.recipient_id) {
+        this.announce = ['Hold it right there...', 'You need to supply all required fields (coupon code, discount % and recipient)'];
+        return;
+      }
+      this.couponToEdit.command = cmd;
+      const data = JSON.stringify(this.couponToEdit);
+      const url = auth.editCouponInvitation;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'POST', headers, body: data })
+        .then(this.couponToEdit = null)
+        .then((result) => result.json())
+        .then((result) => { this.announce = result; });
+    },
     guestCheck(rowObj) {
       if (rowObj.guest_status === '1') {
         return 'Yes';
@@ -246,9 +284,22 @@ export default {
     },
     editCoupon(rowId) {
       this.couponToEdit = this.couponsList[rowId];
+      if (this.couponsList[rowId].guest_status === '1') {
+        this.couponToEdit.guest_status = true;
+      } else {
+        this.couponToEdit.guest_status = false;
+      }
     },
     startNewCoupon() {
       this.couponToEdit = {};
+    },
+    changeGuestStatus(event) {
+      // eslint-disable-next-line
+      if (event.target.checked) {
+        this.couponToEdit.guest_status = true;
+      } else {
+        this.couponToEdit.guest_status = false;
+      }
     },
   },
   mounted() {
@@ -259,3 +310,13 @@ export default {
 
 };
 </script>
+
+<style>
+.vs__selected-options span.vs__selected {
+    border:none;
+    height:25px;
+    background:#37bafd;
+    color:white;
+    min-width:100px;
+}
+</style>
