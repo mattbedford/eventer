@@ -26,6 +26,7 @@ function run_database_set_up() {
 		street_address text,
 		postcode text,
 		city text,
+		my_company_is text,
 		country text,
 		t_and_c tinyint(1) DEFAULT '1' NOT NULL,
 		interests text,
@@ -34,6 +35,7 @@ function run_database_set_up() {
 		coupon_code text,
 		sign_up_date DATE NOT NULL,
 		printed tinyint(1) DEFAULT '0' NOT NULL,
+		hs_synched tinyint(1) DEFAULT '0' NOT NULL,
 		PRIMARY KEY  (id)
 	) $charset_collate;";
 

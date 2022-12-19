@@ -42,7 +42,8 @@
     "rules": {
       "linebreak-style": 0,
       "no-useless-concat": 0,
-      "prefer-template": 0
+      "prefer-template": 0,
+      "no-plusplus": 0
     }
   },
   "browserslist": [

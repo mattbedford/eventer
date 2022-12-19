@@ -36,6 +36,7 @@ function register_new_attendee($user_data, $amount_paid, $status) {
 			'surname' => $user_data['lname'],
 			'email' => $user_data['email'], 
 			'company' => $user_data['company'],
+            'my_company_is' => $user_data['my_company_is'],
             'street_address' => $user_data['address'],
             'city' => $user_data['city'],
             'country' => $user_data['country'],
@@ -50,7 +51,8 @@ function register_new_attendee($user_data, $amount_paid, $status) {
             'payment_status' => $status,
 			'coupon_code' => $user_data['coupon'],
 			'sign_up_date' => $sign_up_date,
-			'printed' => '0'
+			'printed' => '0',
+            'hs_synched' => '0'
 		) 
 	);
 

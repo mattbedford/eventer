@@ -27,30 +27,30 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
 
         <div class="form-section personal-details">
             <h3>Personal details</h3>
-			<span class="notes">* All fields required unless otherwise indicated.</span>
+			<span class="notes">* Required</span>
             <div class="form-flexer">
                 <div class="input">
                     <label for="title">Title (Optional)</label>
                     <input type="text" name="title" id="title" placeholder="Mr/Ms/Other">
                 </div>
                 <div class="input">
-                    <label for="fname">First name</label>
+                    <label for="fname">First name <span class="req">*</span></label>
                     <input type="text" name="fname" id="fname" required="">
                 </div>
 
                 <div class="input">
-                <label for="lname">Last name</label>
+                <label for="lname">Last name <span class="req">*</span></label>
                 <input type="text" name="lname" id="lname" required="">
                 </div>
             </div>
 
             <div class="form-flexer">
                 <div class="input">
-                    <label for="role">Job title</label>
+                    <label for="role">Job title <span class="req">*</span></label>
                     <input type="text" name="role" id="role" required="">
                 </div>
                 <div class="input">
-                    <label for="email">Email</label>
+                    <label for="email">Email <span class="req">*</span></label>
                     <input type="email" name="email" id="email" required="">
                 </div>
             </div>
@@ -61,7 +61,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
                     <input type="tel" name="mobile" id="mobile" placeholder="+41">
                 </div>
                 <div class="input">
-                    <label for="office">Office phone</label>
+                    <label for="office">Office phone <span class="req">*</span></label>
                     <input type="tel" name="office" id="office" required="">
                 </div>
             </div>
@@ -69,7 +69,6 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
 
         <div class="form-section interests">
             <h3>Interests</h3>
-			<span class="notes">* Optional</span>
             <label for="tags" style="padding-bottom:5px;">(Optional) Use tags to share your goals for the event day. Use the <span class="plus">+</span> icon to add your own</label>
             <!---<textarea name="tags" id="tags" required=""></textarea>--->
             <select name="tags[]" id="tags" multiple="multiple">
@@ -84,33 +83,46 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
                 
         <div class="form-section company-details">
             <h3>Company details</h3>
-			<span class="notes">* All fields required.</span>
+			<span class="notes">* required</span>
             <div class="form-flexer">
                 <div class="input">
-                    <label for="company">Company name</label>
+                    <label for="company">Company name <span class="req">*</span></label>
                     <input type="text" name="company" id="company" required="">
                 </div>
                 <div class="input">
-                    <label for="website">Website url (including 'https://')</label>
+                    <label for="website">Website url (including 'https://') <span class="req">*</span></label>
                     <input type="url" name="website" id="website" placeholder="https://yourwebsite.com" required="">
                 </div>
             </div>
             
             <div class="input">
-                <label for="address">Street address</label>
+                <label for="my_company_is">Tell us what kind of company it is <span class="req">*</span></label>
+                <select name="my_company_is" id="my_company_is" required>
+                    <option disabled="" value="">What kind of company is yours?</option>
+                    <option value="Brand, Retailer, Manufacturer or Online Shop">Brand, Retailer, Manufacturer or Online Shop</option>
+                    <option value="Investor, Family Office,">Investor, Family Office, Business Angel</option>
+                    <option value="Media / Press">Media / Press / Journalism</option>
+                    <option value="Public Administration / Institution">Public Administration / Institution</option>
+                    <option value="Research Institute, University, School">Research Institute, University, School</option>
+                    <option value="Vendor / Supplier of Services">Vendor / Supplier of Services for Innovation and e-Commerce</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="input">
+                <label for="address">Street address <span class="req">*</span></label>
                 <input type="text" name="address" id="address" required="">
             </div>
             <div class="input">
-                <label for="postcode">Postcode</label>
+                <label for="postcode">Postcode <span class="req">*</span></label>
                 <input type="text" name="postcode" id="postcode" required="">
             </div>
             <div class="form-flexer">
                 <div class="input">
-                    <label for="city">City</label>
+                    <label for="city">City <span class="req">*</span></label>
                     <input type="text" name="city" id="city" required="">
                 </div>
                 <div class="input">
-                    <label for="country">Country</label>
+                    <label for="country">Country <span class="req">*</span></label>
                     <input type="text" name="country" id="country" required="">
                 </div>
             </div>
@@ -118,12 +130,12 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
 
         <div class="form-section t-and-c">
             <h3>Terms & conditions</h3>
-			<span class="notes">* Required.</span>
+			<span class="notes">* Required</span>
             <p>Dagorà Lifestyle Innovation Hub along with its strategic partners Netcomm Suisse , Loomish and the LifeStyle-Tech Competence Center are committed to protecting and respecting your privacy, and we’ll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. </p>
             <p>By submitting this form, you also agree to have your contact information, including email, passed on to the sponsors of this event for the purpose of following up on your interests.</p>
 		    <div class="mktbox">
 			    <input type="checkbox" name="mkt" id=mkt required>
-                <label for="mkt">I consent to my data being used for marketing communication and updates on initiatives</label>
+                <label for="mkt"><span class="req">*</span> I consent to my data being used for marketing communication and updates on initiatives</label>
             </div>
 		    <p>You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our Privacy Policy. By clicking submit below, you consent to allow Dagorà and its strategic partners Netcomm Suisse and Loomish SA to store and process the personal information submitted above to provide you the content requested.
 		    </p>

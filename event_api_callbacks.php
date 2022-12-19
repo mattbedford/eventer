@@ -152,6 +152,7 @@ function create_new_registration($data) {
 	$name = $data['name'] ? $data['name'] : "unknown";
 	$surname = $data['surname'] ? $data['surname'] : "unknown";
 	$company = $data['company'] ? $data['company'] : "unknown";
+    $company_is = $data['my_company_is'] ? $data['my_company_is'] : "unknown";
 	$role = $data['role'] ? $data['role'] : "unknown";
     $city = $data['city'] ? $data['city'] : "unknown";
     $country = $data['country'] ? $data['country'] : "unknown";
@@ -173,6 +174,7 @@ function create_new_registration($data) {
             'surname' => $surname, 
             'email' => $email, 
             'company' => $company, 
+            'my_company_is' => $company_is,
             'role' => $role, 
             'city' => $city, 
             'country' => $country, 
@@ -206,6 +208,7 @@ function edit_existing_registration($data) {
 	$name = $data['name'];
 	$surname = $data['surname'];
 	$company = $data['company'];
+    $company_is = $data['my_company_is'];
 	$role = $data['role'];
     $city = $data['city'];
     $country = $data['country'];
@@ -221,7 +224,8 @@ function edit_existing_registration($data) {
 			SET name = %s, 
             surname = %s, 
             email = %s, 
-            company = %s, 
+            company = %s,
+            my_company_is = %s,
             role = %s, 
             city = %s, 
             country = %s, 
@@ -232,7 +236,7 @@ function edit_existing_registration($data) {
             website = %s
 			WHERE id = %d
 		",
-	$name, $surname, $email, $company, $role, $city, $country, $mobile_phone, $office_phone, $postcode, $street_address, $website, $id
+	$name, $surname, $email, $company, $company_is, $role, $city, $country, $mobile_phone, $office_phone, $postcode, $street_address, $website, $id
 	) );
 
     if($chk !== false) {
@@ -472,4 +476,19 @@ function delete_existing_coupon($id_to_delete) {
         return array("Success", "Invitation/coupon " . $id_to_delete . " was successfully deleted from the system.");
     }
     return array("Hmm...", "Something went wrong and we couldn't find the invitation/coupon you tried to delete.");
+}
+
+function hubspot_sync($new_data) {
+    $data = $new_data->get_json_params();
+
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/registrations/add_registrant_to_hubspot.php';
+    $res = set_up_and_send_new_contact($data);
+
+    if($res[0] == "Success") {
+        $data['hs_synched'] = "1";
+        edit_existing_registration($data);
+    }
+    
+    return $res;
+    die();
 }

@@ -120,7 +120,9 @@ margin-top:10px;
 label {
 color:#868686;
 }
-
+label .req {
+   color: #c14444;
+}
 .form-section.t-and-c p {
 color:#868686;
 }

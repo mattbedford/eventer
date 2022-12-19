@@ -9,5 +9,6 @@ const config = {
   peopleAndOrgs: `${rootUrl}/wp-json/core-vue/people-and-orgs`,
   onlyPeople: `${rootUrl}/wp-json/core-vue/just-people`,
   editCouponInvitation: `${rootUrl}/wp-json/core-vue/edit-coupon-invitation`,
+  hubspotSync: `${rootUrl}/wp-json/core-vue/hubspot-sync`,
 };
 export default config;

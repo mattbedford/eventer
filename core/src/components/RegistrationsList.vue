@@ -20,10 +20,14 @@
               </button>
             </div>
             <template slot="table-row" slot-scope="props">
-                <span v-if="props.column.field == 'edit'">
-                    <button @click="editRegistrant(props.row.originalIndex)">Edit</button>
-                </span>
-            </template>
+              <div v-if="props.column.field == 'edit'">
+                <button @click="editRegistrant(props.row.originalIndex)">View/Edit</button>
+                <button class='sync-state'
+                  @click="syncWithHubspot(props.row.originalIndex)"
+                  v-html="editButton(props.row)">
+                </button>
+              </div>
+           </template>
         </vue-good-table>
     </div>
     <div class="edit-shelf" v-if="(oneToEdit !== null)" v-scroll-lock="oneToEdit">
@@ -31,6 +35,22 @@
         <span class="options-title">
           <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M459.94 53.25a16.06 16.06 0 0 0-23.22-.56L424.35 65a8 8 0 0 0 0 11.31l11.34 11.32a8 8 0 0 0 11.34 0l12.06-12c6.1-6.09 6.67-16.01.85-22.38zM399.34 90 218.82 270.2a9 9 0 0 0-2.31 3.93L208.16 299a3.91 3.91 0 0 0 4.86 4.86l24.85-8.35a9 9 0 0 0 3.93-2.31L422 112.66a9 9 0 0 0 0-12.66l-9.95-10a9 9 0 0 0-12.71 0z"/><path d="M386.34 193.66 264.45 315.79A41.08 41.08 0 0 1 247.58 326l-25.9 8.67a35.92 35.92 0 0 1-44.33-44.33l8.67-25.9a41.08 41.08 0 0 1 10.19-16.87l122.13-121.91a8 8 0 0 0-5.65-13.66H104a56 56 0 0 0-56 56v240a56 56 0 0 0 56 56h240a56 56 0 0 0 56-56V199.31a8 8 0 0 0-13.66-5.65z"/></svg>
           <h2>Edit registration</h2>
+        </span>
+        <span class="sync-status-notice suspicious"
+          v-if="oneToEdit.id && checkSuspiciousFields(oneToEdit)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M85.57 446.25h340.86a32 32 0 0 0 28.17-47.17L284.18 82.58c-12.09-22.44-44.27-22.44-56.36 0L57.4 399.08a32 32 0 0 0 28.17 47.17z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m250.26 195.39 5.74 122 5.73-121.95a5.74 5.74 0 0 0-5.79-6h0a5.74 5.74 0 0 0-5.68 5.95z"/><path d="M256 397.25a20 20 0 1 1 20-20 20 20 0 0 1-20 20z"/></svg>
+          <span>
+            This data does not look right. please check company, email, website and name fields.
+          </span>
+        </span>
+        <span class="sync-status-notice to-sync"
+          v-else-if="oneToEdit.id && oneToEdit.hs_synched !== '1'"
+        >
+          <svg class="sync-me" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M434.67 285.59v-29.8c0-98.73-80.24-178.79-179.2-178.79a179 179 0 0 0-140.14 67.36m-38.53 82v29.8C76.8 355 157 435 256 435a180.45 180.45 0 0 0 140-66.92"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m32 256 44-44 46 44m358 0-44 44-46-44"/></svg>
+          <span>
+            Not yet synched with Hubspot.
+          </span>
         </span>
 
         <button class="close-button" @click="(oneToEdit = null)">
@@ -55,6 +75,25 @@
             <label for="website">Website
               <input type="url" id="website" v-model="oneToEdit.website"/></label>
           </div>
+
+          <div class="company_type_wrapper">
+                <p>Company type</p>
+                <select name="company_type" id="company_type" v-model="oneToEdit.my_company_is">
+                    <option value="Brand, Retailer, Manufacturer or Online Shop">
+                      Brand, Retailer, Manufacturer or Online Shop</option>
+                    <option value="Investor, Family Office,">
+                      Investor, Family Office, Business Angel</option>
+                    <option value="Media &amp; Press">
+                      Media / Press / Journalism</option>
+                    <option value="Public Administration / Institution">
+                      Public Administration / Institution</option>
+                    <option value="Research Institute, University, School">
+                      Research Institute, University, School</option>
+                    <option value="Vendor / Supplier of Services">
+                      Vendor / Supplier of Services for Innovation and e-Commerce</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
 
           <label for="role">Role
               <input type="text" id="role" v-model="oneToEdit.role"/></label>
@@ -98,7 +137,15 @@
             <button v-else
               class="save-edits form-button"
               type="button" @click="editRegistration('create')">
-              Save edits
+              Add registration
+            </button>
+            <button
+              v-if="oneToEdit.id && oneToEdit.hs_synched !== '1'"
+              type="button"
+              class="form-button hubspot-sync"
+              @click="syncWithHubspot(oneToEdit.id)"
+            >
+              Sync with Hubspot
             </button>
             <button
               v-if="oneToEdit.id"
@@ -143,6 +190,10 @@ export default {
         {
           label: 'Company',
           field: 'company',
+        },
+        {
+          label: 'Company type',
+          field: 'my_company_is',
         },
         {
           label: 'Coupon',
@@ -201,9 +252,61 @@ export default {
         .then((result) => { this.announce = result; });
     },
     editButton(rowObj) {
-      const z = rowObj.id;
-      const x = `<button @click="editRegistrant(${z})">View/Edit</button>`;
-      return x;
+      let html = '';
+      const syncStatus = this.syncHsCheck(rowObj);
+
+      switch (syncStatus) {
+        case 'suspicious':
+          html = '<svg class="suspicious" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M85.57 446.25h340.86a32 32 0 0 0 28.17-47.17L284.18 82.58c-12.09-22.44-44.27-22.44-56.36 0L57.4 399.08a32 32 0 0 0 28.17 47.17z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m250.26 195.39 5.74 122 5.73-121.95a5.74 5.74 0 0 0-5.79-6h0a5.74 5.74 0 0 0-5.68 5.95z"/><path d="M256 397.25a20 20 0 1 1 20-20 20 20 0 0 1-20 20z"/></svg>';
+          break;
+        case 'ok':
+          html = '<svg class="all-ok" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176 217.6 336 160 272"/></svg>';
+          break;
+        case 'sync-me':
+          html = '<svg class="sync-me" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M434.67 285.59v-29.8c0-98.73-80.24-178.79-179.2-178.79a179 179 0 0 0-140.14 67.36m-38.53 82v29.8C76.8 355 157 435 256 435a180.45 180.45 0 0 0 140-66.92"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m32 256 44-44 46 44m358 0-44 44-46-44"/></svg>';
+          break;
+        default:
+          html = '<svg class="all-ok" xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176 217.6 336 160 272"/></svg></button>';
+      }
+      return html;
+    },
+    syncHsCheck(rowObj) {
+      const suspicious = this.checkSuspiciousFields(rowObj);
+      if (rowObj.hs_synched === '0' && suspicious === true) {
+        return 'suspicious';
+      }
+      if (rowObj.hs_synched === '0') {
+        return 'sync-me';
+      }
+      if (rowObj.hs_synched !== '0') {
+        return 'ok';
+      }
+      return 'ok';
+    },
+    async syncWithHubspot(rowId) {
+      let target = null;
+      if (this.oneToEdit == null) {
+        target = this.registrationsList[rowId];
+      } else {
+        target = this.oneToEdit;
+      }
+      if (!target.name || !target.surname || !target.email
+      || !target.company || !target.office_phone) {
+        this.announce = ['Hold it right there...', 'You need to supply all required fields (name, surname, company, email and office phone)'];
+        return;
+      }
+      this.oneToEdit = null;
+      const data = JSON.stringify(target);
+      const url = auth.hubspotSync;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'POST', headers, body: data })
+        .then(this.oneToEdit = null)
+        .then((result) => result.json())
+        .then((result) => { this.announce = result; });
     },
     concatName(rowObj) {
       return rowObj.name + ' ' + rowObj.surname;
@@ -235,6 +338,45 @@ export default {
     },
     createRegistrant() {
       this.oneToEdit = {};
+    },
+    checkSuspiciousFields(rowObj) {
+      let score = 0;
+      // eslint-disable-next-line
+      let company = rowObj.company;
+      // eslint-disable-next-line
+      const email = rowObj.email;
+      if (email.indexOf('@') === -1) {
+        return true;
+      }
+      const domain = email.split('@')[1];
+
+      if (company.indexOf(' ') !== -1) {
+        company = rowObj.company.split(' ')[0].toLowerCase();
+        if (company.length < 3) {
+          company = rowObj.company.split(' ')[1].toLowerCase();
+        }
+      }
+      if (email.indexOf(rowObj.name.toLowerCase()) !== -1) {
+        // eslint-disable-next-line
+        score++;
+      }
+      if (email.indexOf(rowObj.surname.toLowerCase()) !== -1) {
+        // eslint-disable-next-line
+        score++;
+      }
+      if (domain.indexOf(company.toLowerCase()) !== -1) {
+        // eslint-disable-next-line
+        score++;
+      }
+      if (rowObj.website.indexOf(domain) !== -1) {
+        // eslint-disable-next-line
+        score++;
+      }
+
+      if (score < 2) {
+        return true;
+      }
+      return false;
     },
   },
   mounted() {
