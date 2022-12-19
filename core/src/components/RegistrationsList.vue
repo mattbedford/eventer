@@ -304,7 +304,6 @@ export default {
         'X-WP-Nonce': this.nonce,
       };
       fetch(url, { method: 'POST', headers, body: data })
-        .then(this.oneToEdit = null)
         .then((result) => result.json())
         .then((result) => { this.announce = result; });
     },

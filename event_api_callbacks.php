@@ -485,8 +485,45 @@ function hubspot_sync($new_data) {
     $res = set_up_and_send_new_contact($data);
 
     if($res[0] == "Success") {
-        $data['hs_synched'] = "1";
-        edit_existing_registration($data);
+        global $wpdb;
+	    $my_table = $wpdb->prefix . 'registrations';
+	    $id = intval($data['id']);
+
+        $email = $data['email'];
+        $name = $data['name'];
+        $surname = $data['surname'];
+        $company = $data['company'];
+        $company_is = $data['my_company_is'];
+        $role = $data['role'];
+        $city = $data['city'];
+        $country = $data['country'];
+        $mobile_phone = $data['mobile_phone'];
+        $office_phone = $data['office_phone'];
+        $postcode = $data['postcode'];
+        $street_address = $data['street_address'];
+        $website = $data['website'];
+		
+        $chk = $wpdb->query( $wpdb->prepare( 
+            "
+                UPDATE $my_table 
+                SET name = %s, 
+                surname = %s, 
+                email = %s, 
+                company = %s,
+                my_company_is = %s,
+                role = %s, 
+                city = %s, 
+                country = %s, 
+                mobile_phone = %s, 
+                office_phone = %s, 
+                postcode = %s,
+                street_address = %s,
+                website = %s,
+                hs_synched = %s
+                WHERE id = %d
+            ",
+        $name, $surname, $email, $company, $company_is, $role, $city, $country, $mobile_phone, $office_phone, $postcode, $street_address, $website, "1", $id
+        ) );
     }
     
     return $res;

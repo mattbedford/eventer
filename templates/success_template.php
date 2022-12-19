@@ -234,9 +234,8 @@ function run_success_message() {
 	echo "<div class='success'>";
 	echo '<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176 217.6 336 160 272"/></svg>';
 	echo "<h1>Congrats!</h1></br>";
-	echo "<p>You have successfully signed up for " . get_option('event_name');  
-	echo " and you paid with your own money.";
-	echo "We can't wait to see you at our event!</p>";
+	echo "<p>You have successfully purchased your ticket for " . get_option('event_name');  
+	echo ". We can't wait to see you at our event!</p>";
 	echo "<p>Soon (but please note, not immediately) you'll receive your email confirmation as well as any relevant updates.</p>";
 	echo "Click <a href='/'>here</a> to continue exploring the themes and speakers of the big day!";
 }

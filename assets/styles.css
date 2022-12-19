@@ -183,6 +183,12 @@ tbody .vgt-left-align button.sync-state {
     justify-content:center;
     line-height:0 !important;
 }
+
+.vgt-left-align > div:has(.sync-state) {
+    position:relative;
+     margin-top:-12px;
+ }
+
 button.sync-state {
     position:relative;
         bottom:-7px;
