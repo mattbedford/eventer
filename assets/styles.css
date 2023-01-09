@@ -356,3 +356,10 @@ background: #d76163;
 .hubspot-sync {
     background:#FF5722;
 }
+
+#other-recipient, #custom-headliners {
+    max-width:25rem;
+}
+.coupon-link {
+    text-decoration:none;
+}

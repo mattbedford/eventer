@@ -310,6 +310,7 @@ function all_event_coupons() {
         $invitation_array[$n]['actual_uses'] = get_post_meta($sing_inv, 'actual_uses', true);
         $invitation_array[$n]['discount'] = get_post_meta($sing_inv, 'percentage_value', true);
         $invitation_array[$n]['guest_status'] = get_post_meta($sing_inv, 'for_guests', true);
+        $invitation_array[$n]['permalink'] = get_permalink($sing_inv);
         $n++;
     }
     

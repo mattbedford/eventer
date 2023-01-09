@@ -22,6 +22,11 @@
                 <span v-if="props.column.field == 'edit'">
                     <button @click="editCoupon(props.row.originalIndex)">Edit</button>
                 </span>
+                <span v-else-if="props.column.field == 'titleLink'">
+                    <a :href="props.row.permalink" target="_blank" class="coupon-link">
+                      {{props.row.coupon_title}}
+                    </a> &#10140;
+                </span>
             </template>
         </vue-good-table>
 
@@ -64,8 +69,7 @@
                       <p>Is this for guests?</p>
                     </div>
 
-                    <div class="double">
-                        <label for="related-post">Recipient
+                    <label for="related-post">Recipient
                         <select name="related-post" v-model="couponToEdit.recipient_id">
                             <option value="other">Other</option>
                             <option v-for="(item, index) in usersList"
@@ -73,15 +77,14 @@
                             :key="index">
                             {{item.name}}
                             </option>
-                        </select></label>
-
-                        <label for="other-recipient" v-show="couponToEdit.recipient_id === 'other'">
-                            Other recipient
+                        </select>
+                    </label>
+                    <label for="other-recipient" v-show="couponToEdit.recipient_id === 'other'">
+                            Add new recipient if not in dropdown list
                             <input type="text"
                                 id="other-recipient"
                                 v-model="couponToEdit.recipient_name"/>
-                        </label>
-                    </div>
+                    </label>
 
                     <label for="coupon-type">Coupon type
                         <select id="coupon-type" v-model="couponToEdit.invitation_type">
@@ -172,7 +175,7 @@ export default {
       columns: [
         {
           label: 'Coupon',
-          field: 'coupon_title',
+          field: 'titleLink',
         },
         {
           label: 'Discount %',
@@ -292,6 +295,8 @@ export default {
     },
     startNewCoupon() {
       this.couponToEdit = {};
+      this.couponToEdit.with_headliners = 'standard';
+      this.couponToEdit.invitation_type = 'generic';
     },
     changeGuestStatus(event) {
       // eslint-disable-next-line
