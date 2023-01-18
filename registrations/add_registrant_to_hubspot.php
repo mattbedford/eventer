@@ -126,11 +126,16 @@ function set_up_and_send_new_contact($clean_form_data) {
 	
 	$fields_string = json_encode($fields);
 	$response = trigger_hubspot_curl($url, $fields, $fields_string);
-    file_put_contents('hubspot_log.txt', print_r($response, true . "\n") . "\n", FILE_APPEND);
+    file_put_contents('hubspot_log.txt', print_r("Hubspot response: " . $response, true . "\n") . "\n", FILE_APPEND);
     if(isset($response->vid)) {
 	    file_put_contents('hubspot_log.txt', "CONTACT ID: " . $response->vid . "\n", FILE_APPEND);
-        set_up_and_send_list_add($response->vid);
-        return array("Success", "Contact added to Hubspot.");
+        if($clean_form_data['payment_status'] == "Pending") {
+            file_put_contents('hubspot_log.txt', "Contact added to HS, but not to event registration list." . "\n", FILE_APPEND);
+            return array("Success", "Contact added to Hubspot but <em>not</em> to event registrations list as payment is still pending.");
+        } else {
+            set_up_and_send_list_add($response->vid);
+            return array("Success", "Contact added to Hubspot.");
+        }
     } else {
         return array("Dammit", "We could not communicate with Hubspot. Please try again later.");
     }

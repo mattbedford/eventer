@@ -5,6 +5,7 @@
         <vue-good-table
             :columns="columns"
             :rows="registrationsList"
+            :row-style-class="rowStyleClassFn"
             theme="black-rhino"
             :search-options="{
               enabled: true
@@ -34,7 +35,8 @@
       <div class="content-wrap">
         <span class="options-title">
           <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M459.94 53.25a16.06 16.06 0 0 0-23.22-.56L424.35 65a8 8 0 0 0 0 11.31l11.34 11.32a8 8 0 0 0 11.34 0l12.06-12c6.1-6.09 6.67-16.01.85-22.38zM399.34 90 218.82 270.2a9 9 0 0 0-2.31 3.93L208.16 299a3.91 3.91 0 0 0 4.86 4.86l24.85-8.35a9 9 0 0 0 3.93-2.31L422 112.66a9 9 0 0 0 0-12.66l-9.95-10a9 9 0 0 0-12.71 0z"/><path d="M386.34 193.66 264.45 315.79A41.08 41.08 0 0 1 247.58 326l-25.9 8.67a35.92 35.92 0 0 1-44.33-44.33l8.67-25.9a41.08 41.08 0 0 1 10.19-16.87l122.13-121.91a8 8 0 0 0-5.65-13.66H104a56 56 0 0 0-56 56v240a56 56 0 0 0 56 56h240a56 56 0 0 0 56-56V199.31a8 8 0 0 0-13.66-5.65z"/></svg>
-          <h2>Edit registration</h2>
+          <h2 v-if="oneToEdit.payment_status != 'Pending'">Edit registration</h2>
+          <h2 v-else>View non-registered contact</h2>
         </span>
         <span class="sync-status-notice suspicious"
           v-if="oneToEdit.id && checkSuspiciousFields(oneToEdit)"
@@ -120,8 +122,13 @@
           <h2>Sign-up details</h2>
           <ul v-if="oneToEdit.id">
             <li>Coupon: <strong>{{oneToEdit.coupon_code}}</strong></li>
-            <li>Billed: <strong>CHF {{oneToEdit.paid}}</strong></li>
-            <li>Payment status: <strong>{{oneToEdit.payment_status}}</strong></li>
+            <li>Billed: <strong>CHF {{oneToEdit.paid}}</strong>
+              <span v-if="oneToEdit.payment_status == 'Pending'">
+                - contact will not be registered to event until payment</span>
+            </li>
+            <li :class="{pending : oneToEdit.payment_status == 'Pending'}">
+              Payment status: <strong>{{oneToEdit.payment_status}}</strong>
+            </li>
             <li>Sign-up date: <strong><span v-html="registrationDate(oneToEdit)">
             </span></strong></li>
             <li>User interests: <strong><span v-html="sortLikes(oneToEdit)">
@@ -200,7 +207,7 @@ export default {
           field: 'coupon_code',
         },
         {
-          label: 'Paid',
+          label: 'Status',
           field: this.paidAmount,
         },
         {
@@ -311,7 +318,11 @@ export default {
       return rowObj.name + ' ' + rowObj.surname;
     },
     paidAmount(rowObj) {
-      return 'CHF ' + rowObj.paid;
+      const stat = (rowObj.payment_status);
+      if (stat === 'Pending') {
+        return 'Abandoned cart';
+      }
+      return rowObj.payment_status;
     },
     printedOrNot(rowObj) {
       if (rowObj.printed === '0') {
@@ -337,6 +348,9 @@ export default {
     },
     createRegistrant() {
       this.oneToEdit = {};
+    },
+    rowStyleClassFn(row) {
+      return row.payment_status === 'Pending' ? 'abandoned' : 'normal';
     },
     checkSuspiciousFields(rowObj) {
       let score = 0;
