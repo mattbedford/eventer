@@ -4,8 +4,6 @@ include($path.'wp-load.php');
 require_once plugin_dir_path( __FILE__ ) . "add_new_registrant.php";
 require_once plugin_dir_path( __FILE__ ) . "add_registrant_to_hubspot.php";
 
-//Testing only
-$x = do_site_to_hubspot_sync();
 
 function get_missing_registrations_from_hs() {
 	global $wpdb;
@@ -114,7 +112,26 @@ function do_site_to_hubspot_sync() {
 	$reg_table = $wpdb->prefix . 'registrations';
 	$result = $wpdb->get_results ( "SELECT * FROM $reg_table WHERE 'hs_synched' = 0" );
 	$unsycnhed_db_entries = (array) $result;
-	foreach($unsycnhed_db_entries as $row) {
-	  $res = set_up_and_send_new_contact($row);
+  	foreach($unsycnhed_db_entries as $row) {
+	 	$arr_conv = (array) $row;
+      	$res = set_up_and_send_new_contact($arr_conv);
+        $db_upd = update_hs_synched_status_of_registrant($arr_conv);
 	}
 }
+
+function update_hs_synched_status_of_registrant($arr) {
+	   global $wpdb;
+	   $my_table = $wpdb->prefix . 'registrations';
+	   $id = intval($arr['id']);
+		
+	   $chk = $wpdb->query( $wpdb->prepare( 
+		"
+			UPDATE $my_table 
+			SET hs_synched = %s
+			WHERE id = %d
+		",
+	"1", $id
+	) );
+}
+
+

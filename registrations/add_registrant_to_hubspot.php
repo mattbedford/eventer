@@ -126,7 +126,6 @@ function set_up_and_send_new_contact($clean_form_data) {
 	
 	$fields_string = json_encode($fields);
 	$response = trigger_hubspot_curl($url, $fields, $fields_string);
-    file_put_contents('hubspot_log.txt', print_r("Hubspot response: " . $response, true . "\n") . "\n", FILE_APPEND);
     if(isset($response->vid)) {
 	    file_put_contents('hubspot_log.txt', "CONTACT ID: " . $response->vid . "\n", FILE_APPEND);
         if($clean_form_data['payment_status'] == "Pending") {
@@ -143,7 +142,7 @@ function set_up_and_send_new_contact($clean_form_data) {
 }
 
 function set_up_and_send_list_add($vid) {
-	$list_id = get_option('hubspot_list');
+	$list_id = '943'; //get_option('hubspot_list');
 	$new_contact = $vid;
 	$url = "https://api.hubapi.com/contacts/v1/lists/" . $list_id . "/add";
 
