@@ -530,3 +530,10 @@ function hubspot_sync($new_data) {
     return $res;
     die();
 }
+
+function all_sync() {
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/registrations/sync_all_registrations_with_hubspot.php';
+    $res = get_missing_registrations_from_hs();
+    return $res;
+    die();
+}

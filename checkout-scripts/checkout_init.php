@@ -89,6 +89,7 @@ $amount = intval($amount_to_pay*100);
 
 $checkout_session = \Stripe\Checkout\Session::create([
   'customer_email' => $customer_mail,
+  'invoice_creation' => ['enabled' => true],
   'client_reference_id' => $registration_id, // database id of this persons registration
   'line_items' => [[
       'price_data' => [

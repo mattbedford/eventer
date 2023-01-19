@@ -47,7 +47,7 @@
               Trying to sync a large number (> 100) <em>will</em> lead to problems.
                Sync now for a happier life.
             </p>
-          <button>Hit me up</button>
+          <button @click="syncAllWithHubspot()">Hit me up</button>
         </div>
     </div>
     <div class="edit-shelf" v-if="(oneToEdit !== null)" v-scroll-lock="oneToEdit">
@@ -256,6 +256,23 @@ export default {
       fetch(url, { method: 'GET', headers })
         .then((result) => result.json())
         .then((result) => { this.registrationsList = result; });
+    },
+    async syncAllWithHubspot() {
+      const url = auth.allSync;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'GET', headers })
+        .then((result) => result.json())
+        .then((result) => {
+          if (result[0] === 'Success') {
+            this.announce = result;
+          } else {
+            this.announce = ['Uh oh', 'Something went wrong with the sync. Sorry, we do not know any more than that.'];
+          }
+        });
     },
     async editRegistration(cmd) {
       if (!this.oneToEdit.name || !this.oneToEdit.surname || !this.oneToEdit.email

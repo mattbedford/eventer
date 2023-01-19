@@ -103,3 +103,14 @@ add_action('rest_api_init', function () {
         }
     ));
   });
+
+//Save all data to Hubspot and sync HS with DB - site_url()/wp-json/core-vue/all-sync
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/all-sync',array(
+        'methods'  => 'GET',
+        'callback' => 'all_sync',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });

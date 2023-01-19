@@ -15,7 +15,7 @@ function get_missing_registrations_from_hs() {
 	}
 
 	$offset = null;
-	$list_id = '376';//get_option('hubspot_list');
+	$list_id = get_option('hubspot_list');
 	$url = 'https://api.hubapi.com/contacts/v1/lists/' . $list_id . '/contacts/all?count=100&&property=firstname&property=lastname&property=phone&property=website&property=email&property=company_type&property=company&property=address&property=zip&property=country&property=city&property=jobtitle&vidOffset=' . $offset;
 
 	//Make first call
@@ -77,7 +77,7 @@ function get_missing_registrations_from_hs() {
   
   	//Then... time to push any unsynched users from our site into hs.
   	do_site_to_hubspot_sync();
-  
+	return array("Success", "All contacts successfully synched between site and Hubspot");
 }
 
 

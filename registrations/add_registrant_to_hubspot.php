@@ -142,7 +142,7 @@ function set_up_and_send_new_contact($clean_form_data) {
 }
 
 function set_up_and_send_list_add($vid) {
-	$list_id = '943'; //get_option('hubspot_list');
+	$list_id = get_option('hubspot_list');
 	$new_contact = $vid;
 	$url = "https://api.hubapi.com/contacts/v1/lists/" . $list_id . "/add";
 
