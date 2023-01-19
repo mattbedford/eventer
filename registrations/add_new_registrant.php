@@ -27,6 +27,10 @@ function register_new_attendee($user_data, $amount_paid, $status) {
     if(!isset($user_data['mobile']) || empty($user_data['mobile'])) {
         $user_data['mobile'] = null;
     }
+
+    if(!isset($user_data['hs_synched']) || empty($user_data['hs_synched'])) {
+        $user_data['hs_synched'] = 0;
+    }
 	
 	$wpdb->insert( 
 		$table_name, 
@@ -52,7 +56,7 @@ function register_new_attendee($user_data, $amount_paid, $status) {
 			'coupon_code' => $user_data['coupon'],
 			'sign_up_date' => $sign_up_date,
 			'printed' => '0',
-            'hs_synched' => '0'
+            'hs_synched' => $user_data['hs_synched']
 		) 
 	);
 
