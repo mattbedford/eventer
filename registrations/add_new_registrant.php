@@ -29,7 +29,7 @@ function register_new_attendee($user_data, $amount_paid, $status) {
     }
 
     if(!isset($user_data['hs_synched']) || empty($user_data['hs_synched'])) {
-        $user_data['hs_synched'] = 0;
+        $user_data['hs_synched'] = '0';
     }
 	
 	$wpdb->insert( 

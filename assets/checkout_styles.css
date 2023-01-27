@@ -132,7 +132,9 @@ display:flex;
 flex-direction:column;
 }
 .coupon-box {
-    outline:2px solid var(--accent) !important;
+    outline:5px solid var(--accent) !important;
+    background:#fcf6ff !important;
+ 	margin-top:5px;
 }
 label[for="coupon"] {
     color:var(--accent);
@@ -187,7 +189,14 @@ padding:20px;
 .form-flexer {
 flex-direction:column;
 }
-
+.checkout-form {
+ margin:0;
+ max-width:90% !important;
+}
+#first_name {
+ left:unset;
+ top:-500px;
+}
 .checkout-form {
 flex-wrap:wrap;
 }
