@@ -11,5 +11,6 @@ const config = {
   editCouponInvitation: `${rootUrl}/wp-json/core-vue/edit-coupon-invitation`,
   hubspotSync: `${rootUrl}/wp-json/core-vue/hubspot-sync`,
   allSync: `${rootUrl}/wp-json/core-vue/all-sync`,
+  speakerCodes: `${rootUrl}/wp-json/core-vue/speaker-codes`,
 };
 export default config;

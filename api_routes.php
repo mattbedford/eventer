@@ -114,3 +114,14 @@ add_action('rest_api_init', function () {
         }
     ));
   });
+
+//Push speaker coupon codes to HS event_coupon_code field - site_url()/wp-json/core-vue/speaker-codes
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/speaker-codes',array(
+        'methods'  => 'GET',
+        'callback' => 'do_speaker_codes',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });

@@ -537,3 +537,64 @@ function all_sync() {
     return $res;
     die();
 }
+
+function do_speaker_codes() {
+        //Get all speaker coupons
+        $args = array(
+            'post_type' => 'invitation',
+            'numberposts' => -1,
+            'fields' => 'ids'
+        );
+        $coupons = get_posts($args);
+    
+        foreach($coupons as $single) {
+            $related = get_post_meta($single, 'related_post', true);
+            if(!empty($related) && 'publish' == get_post_status( $related ) && has_category('2023', $related)) {
+                $mail = get_post_meta($related, 'email-add', true);
+                if (strpos($mail, '@') !== false) {
+                    $speaker_coupons[] = array(
+                            'email' => $mail,
+                            'coupon' => get_the_title($single)
+                    );
+                }
+            }
+        }
+        
+        require_once plugin_dir_path( __DIR__ ) . 'eventer/registrations/add_registrant_to_hubspot.php';
+        $results = array(
+            'good' => 0,
+            'bad' => 0
+        );
+        foreach($speaker_coupons as $speaker_data) {
+            $fields = array(
+                'properties' => array(
+                    array(
+                        'property' => 'email',
+                        'value'	=> $speaker_data['email']
+                    ),
+                    array(
+                        'property' => 'event_coupon_code',
+                        'value'	=> $speaker_data['coupon']
+                    ),
+                )
+            );
+
+            $url = "https://api.hubapi.com/contacts/v1/contact/createOrUpdate/email/" . $speaker_data['email'];
+            $fields_string = json_encode($fields); 
+            $response = trigger_hubspot_curl($url, $fields, $fields_string);
+
+            if(isset($response->vid)) {
+                file_put_contents('hubspot_log.txt', "CONTACT ID: " . $response->vid . "\n", FILE_APPEND);
+                set_up_and_send_list_add($response->vid);
+                $results['good']++;
+            } else {
+                $results['bad']++;
+            }
+			$t = time();
+            file_put_contents('hubspot_log.txt', "TIME: " . $t . "\n", FILE_APPEND);
+	        file_put_contents('hubspot_log.txt', print_r($fields, true . "\n"), FILE_APPEND);
+        }
+        $num = $results['good'] + $results['bad'];
+        return array('Results', 'We attempted to push a total of ' . $num . ' speakers into Hubspot.' . $results['good'] . ' were successful.');
+        die();
+}

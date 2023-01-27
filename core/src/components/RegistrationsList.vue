@@ -47,7 +47,14 @@
               Trying to sync a large number (> 100) <em>will</em> lead to problems.
                Sync now for a happier life.
             </p>
-          <button @click="syncAllWithHubspot()">Hit me up</button>
+          <button @click="syncAllWithHubspot()">Sync all data</button>
+          <br><br>
+          <button @click="doSpeakerCodes()">Just the speakers</button>
+          <p>Hitting "Just the speakers" will sync just the
+            <strong>speaker invitation codes</strong> in Hubspot.
+            It does <em>all speakers</em> at once and it can be used multiple times, no problem.
+          (Please note, we do not have all the speaker's personal info, so only email and coupon
+        will be synched).</p>
         </div>
     </div>
     <div class="edit-shelf" v-if="(oneToEdit !== null)" v-scroll-lock="oneToEdit">
@@ -245,6 +252,17 @@ export default {
     };
   },
   methods: {
+    async doSpeakerCodes() {
+      const url = auth.speakerCodes;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'GET', headers })
+        .then((result) => result.json())
+        .then((result) => { this.announce = result; });
+    },
     async grabRegistrations() {
       this.registrationsList = [];
       const url = auth.allRegistrations;
