@@ -15,14 +15,16 @@
                 perPage: 50,
                 position: 'bottom',
             }">
-            <div slot="table-actions">
+            <div class="buttons-bit" slot="table-actions">
               <button class="create-new-registrant" @click="createRegistrant()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm80 224h-64v64a16 16 0 0 1-32 0v-64h-64a16 16 0 0 1 0-32h64v-64a16 16 0 0 1 32 0v64h64a16 16 0 0 1 0 32z"/></svg>
               </button>
             </div>
             <template slot="table-row" slot-scope="props">
               <div v-if="props.column.field == 'edit'">
-                <button @click="editRegistrant(props.row.originalIndex)">View/Edit</button>
+                <button @click="editRegistrant(props.row.originalIndex)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="ionicon edit-me" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M384 224v184a40 40 0 0 1-40 40H104a40 40 0 0 1-40-40V168a40 40 0 0 1 40-40h167.48"/><path d="M459.94 53.25a16.06 16.06 0 0 0-23.22-.56L424.35 65a8 8 0 0 0 0 11.31l11.34 11.32a8 8 0 0 0 11.34 0l12.06-12c6.1-6.09 6.67-16.01.85-22.38zM399.34 90 218.82 270.2a9 9 0 0 0-2.31 3.93L208.16 299a3.91 3.91 0 0 0 4.86 4.86l24.85-8.35a9 9 0 0 0 3.93-2.31L422 112.66a9 9 0 0 0 0-12.66l-9.95-10a9 9 0 0 0-12.71 0z"/></svg>
+                </button>
                 <button class='sync-state'
                   @click="syncWithHubspot(props.row.originalIndex)"
                   v-html="editButton(props.row)">
@@ -253,6 +255,7 @@ export default {
   },
   methods: {
     async doSpeakerCodes() {
+      this.announce = ['Ok. Synching speakers', 'This may take a minute. Please do not close this tab.'];
       const url = auth.speakerCodes;
       const headers = {
         credentials: 'same-origin',
@@ -276,6 +279,7 @@ export default {
         .then((result) => { this.registrationsList = result; });
     },
     async syncAllWithHubspot() {
+      this.announce = ['Ok. Let\'s do this', 'Please wait while we synch Hubspot data. This may take a few minutes. Please do not close this tab.'];
       const url = auth.allSync;
       const headers = {
         credentials: 'same-origin',
@@ -293,8 +297,8 @@ export default {
         });
     },
     async editRegistration(cmd) {
-      if (!this.oneToEdit.name || !this.oneToEdit.surname || !this.oneToEdit.email
-      || !this.oneToEdit.company || !this.oneToEdit.office_phone) {
+      if ((cmd !== 'delete') && (!this.oneToEdit.name || !this.oneToEdit.surname || !this.oneToEdit.email
+      || !this.oneToEdit.company || !this.oneToEdit.office_phone)) {
         this.announce = ['Hold it right there...', 'You need to supply all required fields (name, surname, company, email and office phone)'];
         return;
       }
