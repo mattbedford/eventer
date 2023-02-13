@@ -44,7 +44,7 @@ function set_up_and_send_new_contact($clean_form_data) {
         || $clean_form_data['my_company_is'] == "Media / Press"
         || $clean_form_data['my_company_is'] == "Media / Press / Journalism"
         || $clean_form_data['my_company_is'] == "Media &amp; Press") {
-        $clean_form_data['my_company_is'] = "Media & Press / Journalism";
+        $clean_form_data['my_company_is'] = "Media & Press";
     }
 
 	$fields = array(
