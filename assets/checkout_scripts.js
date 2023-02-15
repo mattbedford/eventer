@@ -3,6 +3,59 @@
 	jQuery('input').blur(function(){
 		jQuery(this).addClass('notok'); 
 	});
+
+	let submitOnce = 0;
+
+	jQuery('.checkout-form').submit(function(event) {
+		event.preventDefault();
+		if(submitOnce < 2) {
+			submitOnce++;
+			let emailOk = runOwnEmailCheck();
+			if (emailOk) {
+				document.querySelector(".checkout-form").submit();
+			} else {
+				let mailField = document.querySelector('#email')
+				mailField.setCustomValidity('It seems your email does not correspond to the other data you supplied. Please note that your personal work email is mandatory for communication purposes and to ensure entry to the event.');
+				mailField.reportValidity();
+				setTimeout(() => {
+					mailField.setCustomValidity("");
+				}, "9000");
+			}
+		} 
+		if(submitOnce >= 2) {
+			document.querySelector(".checkout-form").submit();
+		}
+	});
+
+	function runOwnEmailCheck() {
+		let mail = jQuery('#email').val().toLowerCase();
+		let fname = jQuery('#fname').val().toLowerCase();
+		let lname = jQuery('#lname').val().toLowerCase();
+		let cname = jQuery('#company').val().toLowerCase();
+		let dname = jQuery('#website').val().toLowerCase();
+
+		let domain = (new URL(dname));
+		dname = domain.hostname.replace('www.','');
+
+		company = cname.replace('.', '');
+		company = company.replace(' sa', '');
+		company = company.replace(' sagl', '');
+		company = company.replace(' srl', '');
+		company = company.replace(' spa', '');
+		company = company.replace(' ltd', '');
+		cname = company.replace(' ', '');
+
+
+		let score = 0;
+
+		if(mail.includes(fname)) score++;
+		if(mail.includes(lname)) score++;
+		if(mail.includes(cname)) score++;
+		if(mail.includes(dname)) score++;
+
+		if (score >= 2) return true;
+		return false;
+	}
 	
 	new SlimSelect({
 	    select: '#tags',

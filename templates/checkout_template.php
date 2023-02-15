@@ -50,9 +50,10 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
                     <input type="text" name="role" id="role" required="">
                 </div>
                 <div class="input">
-                    <label for="email">Email <span class="req">*</span></label>
+                    <label for="email">Email<span class="req">* (Your own work email)</span></label>
                     <input type="email" name="email" id="email" required="">
                 </div>
+                
             </div>
 
             <div class="form-flexer">

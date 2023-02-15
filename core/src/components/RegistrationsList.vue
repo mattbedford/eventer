@@ -227,6 +227,10 @@ export default {
           field: 'company',
         },
         {
+          label: 'Job title',
+          field: 'role',
+        },
+        {
           label: 'Company type',
           field: 'my_company_is',
         },
