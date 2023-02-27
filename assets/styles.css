@@ -402,15 +402,14 @@ tr.abandoned td {
     cursor:pointer;
 }
 
-
-svg.edit-me {
+.registrations-table svg.edit-me {
     width:25px;
     fill:white;
     margin-top:-3px;
     margin-right:-3px;
 }
 
-.vgt-table.black-rhino td button:first-of-type {
+.registrations-table .vgt-table.black-rhino td button:first-of-type {
     display:flex;
     align-items:center;
     justify-content:center;
@@ -421,10 +420,10 @@ svg.edit-me {
     margin-bottom:-14px;
 }
 
-.vgt-table.black-rhino tr td:last-of-type {
+.registrations-table .vgt-table.black-rhino tr td:last-of-type {
     padding:10px;
 }
-.vgt-table.black-rhino tr td:last-of-type > div {
+.registrations-table .vgt-table.black-rhino tr td:last-of-type > div {
     display:flex;
     align-items: center !important;
     margin:-10px 0 0 0  !important;

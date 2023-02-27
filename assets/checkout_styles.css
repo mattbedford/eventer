@@ -130,10 +130,11 @@ color:#868686;
 .coupon-holder {
 display:flex;
 flex-direction:column;
+padding:20px;
+background: var(--accent);
 }
 .coupon-box {
-    outline:5px solid var(--accent) !important;
-    background:#fcf6ff !important;
+    outline:none !important;
  	margin-top:5px;
 }
 label[for="coupon"] {
@@ -152,6 +153,7 @@ top:-25px;
 }
 .error-console {
 display:block;
+box-sizing: border-box;
 position:absolute;
 top:0;
 background:white;
