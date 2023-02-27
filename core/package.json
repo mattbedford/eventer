@@ -10,9 +10,11 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "v-scroll-lock": "^1.3.1",
-    "vue": "^2.6.14",
+    "vue": "^2.7.14",
+    "vue-chart-3": "^2.1.2",
     "vue-good-table": "^2.21.11",
-    "vue-select": "^3.20.0"
+    "vue-select": "^3.20.0",
+    "vue-server-renderer": "^2.7.14"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
@@ -25,7 +27,7 @@
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-vue": "^8.0.3",
     "eslint-plugin-vuejs-accessibility": "^1.1.0",
-    "vue-template-compiler": "^2.6.14"
+    "vue-template-compiler": "^2.7.14"
   },
   "eslintConfig": {
     "root": true,
@@ -45,7 +47,13 @@
       "prefer-template": 0,
       "no-plusplus": 0,
       "vue/no-deprecated-slot-attribute": "off",
-      "vue/no-deprecated-slot-scope-attribute": "off"
+      "vue/no-deprecated-slot-scope-attribute": "off",
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": true
+        }
+      ]
     }
   },
   "browserslist": [

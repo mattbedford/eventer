@@ -428,3 +428,24 @@ tr.abandoned td {
     align-items: center !important;
     margin:-10px 0 0 0  !important;
 }
+.export-section {
+    display: inline-block;
+    margin-top: 50px;
+    background: #efefef;
+    padding: 20px;
+    width: 50%;
+}
+.export-section h3 {
+    color:#37bafd;
+    padding-bottom:20px;
+}
+.export-section h3 svg {
+    width:30px;
+    margin-bottom:-6px;
+}
+.export-section a {
+    background:#7fc41c;
+    padding:8px 25px;
+    color:white;
+    text-decoration:none;
+}

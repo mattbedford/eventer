@@ -1,5 +1,5 @@
 <template>
-  <div class="sub-section">
+  <div class="sub-section" style="flex-direction:column;">
     <message-announce v-if="announce" :message="announce" @closeMessage="killMessage()" />
     <vue-good-table
             :columns="columns"
@@ -29,7 +29,18 @@
                 </span>
             </template>
         </vue-good-table>
-
+        <div class="export-section" style="margin-top:100px !important;">
+          <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M336 176h40a40 40 0 0 1 40 40v208a40 40 0 0 1-40 40H136a40 40 0 0 1-40-40V216a40 40 0 0 1 40-40h40"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m176 272 80 80 80-80M256 48v288"/></svg>
+            Export coupons</h3>
+          <a
+            class='exporter-butt'
+            href='/wp-content/plugins/eventer/export_coupons.php'
+            target='_blank'
+            >
+            Export coupons
+          </a>
+        </div>
         <div class="edit-shelf" v-if="(couponToEdit !== null)" v-scroll-lock="couponToEdit">
             <div class="content-wrap">
                 <span class="options-title">

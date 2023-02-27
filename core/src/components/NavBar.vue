@@ -26,7 +26,7 @@
 
                 <li :class="{active: onPage === 'invitation'}">
                   <button @click="($emit('pageSelect', 'invitation'), selectThis('invitation'))">
-                    Something else
+                    Data
                   </button></li>
             </ul>
         </div>

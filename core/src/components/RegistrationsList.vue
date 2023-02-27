@@ -56,7 +56,19 @@
             <strong>speaker invitation codes</strong> in Hubspot.
             It does <em>all speakers</em> at once and it can be used multiple times, no problem.
           (Please note, we do not have all the speaker's personal info, so only email and coupon
-        will be synched).</p>
+          will be synced).</p>
+        </div>
+        <div class="export-section">
+          <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M336 176h40a40 40 0 0 1 40 40v208a40 40 0 0 1-40 40H136a40 40 0 0 1-40-40V216a40 40 0 0 1 40-40h40"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m176 272 80 80 80-80M256 48v288"/></svg>
+            Export registration data</h3>
+          <a
+            class='exporter-butt'
+            href='/wp-content/plugins/eventer/export_registrations.php'
+            target='_blank'
+            >
+            Export registrations
+          </a>
         </div>
     </div>
     <div class="edit-shelf" v-if="(oneToEdit !== null)" v-scroll-lock="oneToEdit">
