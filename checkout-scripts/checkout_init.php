@@ -143,7 +143,8 @@ function coupons_routine($sanitized_coupon, $amount_to_pay) {
 
 	// Bail if coupon max uses is reached, but only for NON GUEST coupons 
 	// (assume nobody is a guest unless explicitly set as guest).
-	if($guest_status === false && $actual_uses >= $max_uses) {
+	//if(($guest_status === false || $guest_status === 0 || $guest_status === '0') && $actual_uses >= $max_uses) {
+	if($actual_uses >= $max_uses) {
 		return "couponlimit";
 	}
 

@@ -12,6 +12,13 @@ if(!current_user_can( 'edit_posts' )) {
  $result = $wpdb->get_results ( "SELECT * FROM $table", ARRAY_A );
 
  
+$clear_result = array();
+foreach($result as $key => $val) {
+	foreach($val as $arr => $subval) {
+		$x = htmlspecialchars_decode($subval);
+		$clear_result[$key][] = $x;
+	}
+}
 
  $headers = array(
  		'id',
@@ -39,4 +46,4 @@ if(!current_user_can( 'edit_posts' )) {
 		'hs_synched', 
  );
  
- print_to_csv($result, $headers);
+ print_to_csv($clear_result, $headers);

@@ -249,10 +249,17 @@ function edit_existing_registration($data) {
 
 function delete_existing_registration($data) {
     $id = intval($data['id']);
+    $coupon = $data['coupon_code'];
 	global $wpdb;
 	$reg_table = $wpdb->prefix . 'registrations';
 	$res = $wpdb->delete( $reg_table, array( 'id' => $id ) );
     if($res !== false) {
+        $coupon_post = get_page_by_title($coupon, OBJECT, 'invitation');
+        if(!empty($coupon_post) && $coupon_post != false) {
+            $min = intval(get_post_meta($coupon_post->ID, 'actual_uses', true));
+            $min--;
+            update_post_meta($coupon_post->ID, 'actual_uses', $min);
+        }
         return array("Success", "Registration deleted successfully.");
     }
     return array("Uh oh", "Registration could not be deleted, sorry.");
@@ -396,7 +403,11 @@ function edit_coupon_or_invitation($data) {
 }
 
 function create_new_coupon($data) {
-    $for_guests = $data['guest_status'];
+    if(isset($data['guest_status'])) {
+    	$for_guests = $data['guest_status'];
+	} else {
+		$for_guests = false;
+	}
 
     //If non-named coupon/invitation...
     if($data['recipient_id'] === "other") {

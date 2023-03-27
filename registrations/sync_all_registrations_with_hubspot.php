@@ -1,51 +1,22 @@
 <?php
 $path = preg_replace('/wp-content.*$/','',__DIR__);
 include($path.'wp-load.php'); 
+if(!is_user_logged_in()) exit();
+
 require_once plugin_dir_path( __FILE__ ) . "add_new_registrant.php";
 require_once plugin_dir_path( __FILE__ ) . "add_registrant_to_hubspot.php";
 
-
 function get_missing_registrations_from_hs() {
-	//Get list of all registrations in site, push emails to array.
-	global $wpdb;
-	$reg_table = $wpdb->prefix . 'registrations';
-	$result = $wpdb->get_results ( "SELECT * FROM $reg_table" );
-	$db_entries = array();
-	foreach($result as $row) {
-		$db_entries[] = $row->email;
-	}
+	$site_registrations = get_database_registrations_listed(); //List of emails from site DB
+	$hubspot_registrations = get_hubspot_registrations_listed(); //Full array of hubspot registrations data
 
-	//Call HS for list of anybody registered on the list for this event.
-	//Will need to call HS several times though... store all out into array.
-	$offset = null;
-	$list_id = get_option('hubspot_list');
-	$url = 'https://api.hubapi.com/contacts/v1/lists/' . $list_id . '/contacts/all?count=100&&property=firstname&property=lastname&property=phone&property=website&property=email&property=company_type&property=company&property=address&property=zip&property=country&property=city&property=jobtitle&vidOffset=' . $offset;
-
-	//Make first call
-	$x = grab_hs_list($url);
-
-	//Grab decoded info from call: has-more, next contact for offset, contacts list
-	$init_call = (array)json_decode($x);
-	$more_flag = $init_call['has-more'];
-	$offset = $init_call['vid-offset'];
-	$all_contacts = $init_call['contacts'];
-
-	//Loop for additional contacts. Push all into all_contacts array.
-	while ($more_flag == true) {
-		$y = grab_hs_list($url);
-		$more = (array)json_decode($y);
-		array_merge($all_contacts, $more['contacts']);
-		$more_flag = $more['has_more'];
-		$offset = $more['vid-offset'];
-	}
-
-    //Create new array, $results, with anyone who is listed in hubspot registrations but is not in DB table.
+	//Create new array, $results, with anyone who is listed in hubspot registrations but is not in DB table.
 	$results = array();
 	$n = 0;
-	foreach($all_contacts as $single_contact) {
-        $mail = $single_contact->properties->email->value;
-        if(!empty($mail) && !in_array($mail, $db_entries)) {
-		
+	foreach($hubspot_registrations as $single_contact) {
+		$mail = $single_contact->properties->email->value;
+		if(!empty($mail) && !in_array($mail, $site_registrations)) {
+
 			foreach($single_contact->properties as $key => $val) {
 				$keyval_arr[$n][$key] = validate_hubspot_return_vals($key, $val->value);
 			}
@@ -71,20 +42,68 @@ function get_missing_registrations_from_hs() {
 			$results[$n]['payment_status'] = "Free entry";
 
 			$n++;  
-		   }
+		}
 	}
-	
+
 	//Add HS people to our DB, but only if we didn't find them there already.
 	foreach($results as $single_reg) {
 		if(in_array($single_reg['email'], $db_entries)) continue;
-       	register_new_attendee($single_reg, $single_reg['paid'], $single_reg['payment_status'] );
-    }
-  
-  	//Then... time to push any unsynched users from our site into hs.
-  	do_site_to_hubspot_sync();
+		register_new_attendee($single_reg, $single_reg['paid'], $single_reg['payment_status'] );
+	}
+
+	//Then... time to push any unsynched users from our site into hs.
+	do_site_to_hubspot_sync();
 	return array("Success", "All contacts successfully synched between site and Hubspot");
 }
 
+
+
+
+
+
+function get_database_registrations_listed() {
+	//Get list of all registrations in site, push emails to array.
+	global $wpdb;
+	$reg_table = $wpdb->prefix . 'registrations';
+	$result = $wpdb->get_results ( "SELECT * FROM $reg_table" );
+	$db_entries = array();
+	foreach($result as $row) {
+		$db_entries[] = $row->email;
+	}
+	return $db_entries;
+}
+
+function get_hubspot_registrations_listed() {
+	$all_contacts = array();
+	$data = do_hs_api_grab(null);
+	$json_data = (array)json_decode($data);
+	$all_contacts = $json_data['contacts'];
+	$has_more = $json_data['has-more'];
+	$offset = $json_data['vid-offset'];
+	
+	if($has_more === true) {
+		while($has_more === true) {
+			$r = do_hs_api_grab($offset);
+			$r_json = (array)json_decode($r);
+			$new_contacts = (array)$r_json['contacts'];
+			$all_contacts = array_merge($all_contacts, $new_contacts);
+			$has_more = $r_json['has-more'];
+			$offset = $r_json['vid-offset'];
+			if ($has_more !== true) {
+				break;
+			}
+		}
+	}
+	return $all_contacts;
+}
+
+	
+function do_hs_api_grab($offset) {
+	$list_id = get_option('hubspot_list');
+	$url = 'https://api.hubapi.com/contacts/v1/lists/' . $list_id . '/contacts/all?count=100&&property=firstname&property=lastname&property=phone&property=website&property=email&property=company_type&property=company&property=address&property=zip&property=country&property=city&property=jobtitle&vidOffset=' . $offset;
+	$res = grab_hs_list($url);
+	return $res;
+}
 
 
 //API interrogator tool
@@ -115,9 +134,9 @@ function validate_hubspot_return_vals($key, $val) {
 function do_site_to_hubspot_sync() {
  	global $wpdb;
 	$reg_table = $wpdb->prefix . 'registrations';
-	$result = $wpdb->get_results ( "SELECT * FROM $reg_table WHERE 'hs_synched' = 0" );
-	$unsycnhed_db_entries = (array) $result;
-  	foreach($unsycnhed_db_entries as $row) {
+	$result = $wpdb->get_results ( "SELECT * FROM $reg_table WHERE `hs_synched` = 0" );
+	$unsynced_db_entries = (array) $result;
+  	foreach($unsynced_db_entries as $row) {
 	 	$arr_conv = (array) $row;
       	$res = set_up_and_send_new_contact($arr_conv);
         $db_upd = update_hs_synched_status_of_registrant($arr_conv);
@@ -138,5 +157,3 @@ function update_hs_synched_status_of_registrant($arr) {
 	"1", $id
 	) );
 }
-
-
