@@ -35,6 +35,7 @@ function run_database_set_up() {
 		coupon_code text,
 		sign_up_date DATE NOT NULL,
 		printed tinyint(1) DEFAULT '0' NOT NULL,
+		hubspot_id text,
 		hs_synched tinyint(1) DEFAULT '0' NOT NULL,
 		PRIMARY KEY  (id)
 	) $charset_collate;";

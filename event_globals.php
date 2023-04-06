@@ -46,7 +46,7 @@ add_action( 'template_include', 'success_page_setup' );
 add_action('wp_footer', 'show_code_error');
 function show_code_error() {
 if(is_page('checkout') && isset($_GET['status']) && $_GET['status'] === 'error') {
-		$message_field = "<h3>Uh oh. Something wasn't right with your form.</h3>";
+		$message_field = "<h3>Uh oh. Something wasn't right with your form.</h3><br>";
 		$details = "";
 		
 		if(isset($_GET['msg']) && $_GET['msg'] != "") {
@@ -69,12 +69,15 @@ if(is_page('checkout') && isset($_GET['status']) && $_GET['status'] === 'error')
 				if($mex == "couponnotexist" || $mex == "badcode" || $mex == "coupon" || $mex == "badcoupon") {
 					$details = "Something was wrong with your coupon code.";
 				}
+				if($mex == "usedemail") {
+					$details = "<strong>Important:</strong> the email address you provided has already been used to register for this event!";
+				}
 		}
 		
 		echo "<div class='error-console'><span id='error-close'>&#x2715;</span>"; 
 		echo "<p>" . $message_field . "</p>";
 		echo "<p>" . $details . "</p>";
-		echo "<p>Please adjust and try again. If you continue to experience problems, reach out to us at <a href='mailto:info@dagora.ch'>info@dagora.ch</a> and we will do our best to help out.</p>";
+		echo "<br><p>Please adjust and try again. If you continue to experience problems, reach out to us at <a href='mailto:info@dagora.ch'>info@dagora.ch</a> and we will do our best to help out.</p>";
 		echo "</div>";
 	}
 }

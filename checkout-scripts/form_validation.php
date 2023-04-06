@@ -53,6 +53,15 @@ function full_field_check($data) {
 		return $res;
 	}
 
+	global $wpdb;
+	$reg_table = $wpdb->prefix . 'registrations';
+	$result = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $reg_table WHERE email = %s", $data['email'] ) );
+	if($result >= 1) {
+		$res = send_return_array('error', 'usedemail', array("email"));
+		return $res;
+	}
+
+
 	if(!empty($title_field)) $data['title'] = $title_field;
 	if(!empty($mobile_field)) $data['mobile'] = $mobile_field;
 	

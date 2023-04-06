@@ -88,7 +88,7 @@ function load_vue_core($hook) {
 		false,
 		true
 	);
-	wp_enqueue_style('good-table-styles', site_url() . '/wp-content/plugins/eventer/core/dist/css/app.b90c420f.css');
+	//wp_enqueue_style('good-table-styles', site_url() . '/wp-content/plugins/eventer/core/dist/css/app.b90c420f.css');
 	wp_enqueue_style( 'vue_styles', plugins_url('assets/styles.css', __FILE__), array(), '');
 	wp_enqueue_script('wp-api');
 	wp_enqueue_script('vue_app');
