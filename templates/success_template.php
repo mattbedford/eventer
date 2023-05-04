@@ -48,7 +48,10 @@ function run_stripe_checkout_session_check() {
 	$result = $wpdb->get_var($wpdb->prepare("SELECT payment_status FROM {$wpdb->prefix}registrations WHERE id = '%s'", $database_record_id) );
 	if($result && $result === "Pending" && $stripe_sesh->payment_status == "paid") {
 		// We have a user from whom we expected payment
-			$chk = $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->prefix}registrations SET payment_status = %s WHERE id = %s",'Paid', $database_record_id) );
+		$chk = $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->prefix}registrations SET payment_status = %s WHERE id = %s",'Paid', $database_record_id) );
+		require_once plugin_dir_path( __DIR__ ) . "checkout-scripts/add_registrant_to_hubspot.php";
+		do_post_pending_hs_list_add($database_record_id);
+
 	} elseif(!$result) {
 		//We have a user who was not found in our registrations DB table
 		bail_we_have_a_problem("Your sign up has not been successful. :( ");

@@ -34,6 +34,7 @@ function run_database_set_up() {
 		payment_status text,
 		coupon_code text,
 		sign_up_date DATE NOT NULL,
+		welcome_email_sent tinyint(1) DEFAULT '0' NOT NULL,
 		printed tinyint(1) DEFAULT '0' NOT NULL,
 		hubspot_id text,
 		hs_synched tinyint(1) DEFAULT '0' NOT NULL,

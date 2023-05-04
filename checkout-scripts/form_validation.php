@@ -7,6 +7,7 @@
 //validate all with: stripslashes(strip_tags(trim($code)));
 function validate_the_form($post_object) {
 	//Step 1: check hidden fields aren't filled.
+    $post_copy = $post_object;
 	$hiddens = check_hidden_fields($post_object);
 	if ($hiddens === "bad") {
 		$res = send_return_array("error", "honeypot", array("honeypot"));
@@ -18,11 +19,28 @@ function validate_the_form($post_object) {
 	$sanitized = array_map('sanitize_fields', $post_object);
 	
 	//Step 3: now the individual field checker, but on sanitized data
-	//Pass control of the return to a new function
-	$final_result = full_field_check($sanitized);	
-	return $final_result;
+	$final_result = full_field_check($sanitized);
+
+    // Before returning, add in removed data
+    if($final_result[0] !== "error") {
+        $tag_string = "";
+        if(!empty($post_copy['tags'])) {
+	        foreach($post_copy['tags'] as $tag_item) {
+		        $tag_string .= stripslashes(strip_tags(trim($tag_item))) . ",";
+	        }
+        $final_result[2]['tags'] = preg_replace("/,$/", '', $tag_string);
+        }
+
+        if(isset($post_copy['coupon']) && !empty($post_copy['coupon'])) {
+            $final_result[2]['coupon'] = strtoupper(stripslashes(strip_tags(trim($post_copy['coupon']))));
+        }
+    }
+    
+    return $final_result;
+
 }
 
+	
 function full_field_check($data) {
 	$error_fields = array();
 	$req_fields = array();

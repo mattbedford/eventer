@@ -490,6 +490,7 @@ function delete_existing_coupon($id_to_delete) {
     return array("Hmm...", "Something went wrong and we couldn't find the invitation/coupon you tried to delete.");
 }
 
+
 function hubspot_sync($new_data) {
     $data = $new_data->get_json_params();
 

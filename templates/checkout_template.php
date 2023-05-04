@@ -45,7 +45,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
 
             <div class="input">
                     <label for="country">Country <span class="req">*</span></label>
-                    <select name="COUNTRY" id="country" class="<?php if(isset($errors['country'])) echo 'error';?>" required>
+                    <select name="country" id="country" class="<?php if(isset($errors['country'])) echo 'error';?>" required>
 						<option value="" selected="selected">Please select</option>
 						<option value="Switzerland">Switzerland</option>
                         <option value="Afghanistan">Afghanistan</option>
@@ -327,22 +327,21 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
                     <option value="Other">Other</option>
                 </select>
             </div>
+            
             <div class="input">
                 <label for="address">Street address <span class="req">*</span></label>
                 <input type="text" name="address" id="address" required="">
             </div>
-            <div class="input">
-                <label for="postcode">Postcode <span class="req">*</span></label>
-                <input type="text" name="postcode" id="postcode" required="">
-            </div>
+            
             <div class="form-flexer">
+                <div class="input">
+                    <label for="postcode">Postcode <span class="req">*</span></label>
+                    <input type="text" name="postcode" id="postcode" required="">
+                </div>
+
                 <div class="input">
                     <label for="city">City <span class="req">*</span></label>
                     <input type="text" name="city" id="city" required="">
-                </div>
-                <div class="input">
-                    <label for="country">Country <span class="req">*</span></label>
-                    <input type="text" name="country" id="country" required="">
                 </div>
             </div>
         </div>
