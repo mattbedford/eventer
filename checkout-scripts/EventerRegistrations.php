@@ -115,15 +115,17 @@ class EventerRegistration {
         global $wpdb;
         $my_table = $wpdb->prefix . 'registrations';
          
-        $user_data = $wpdb->query( $wpdb->prepare( 
+        $query = $wpdb->get_results( $wpdb->prepare( 
             "
                 SELECT * 
                 FROM $my_table 
                 WHERE id = %d
             ",
-               $price_paid, $payment_status, intval($registration_id)
+               intval($registration_id)
         ));
 
+		$user_data = $query[0];
+		
         $welcome_mail = new MailFunction($user_data->email, $user_data->name, $user_data->surname, "welcome");
 
 
@@ -133,9 +135,9 @@ class EventerRegistration {
              SET paid = %d,
              payment_status = %s,
              welcome_email_sent = 1,
-             WHERE id = %d
+             WHERE id = %s
          ",
-            $price_paid, $payment_status, intval($registration_id)
+            $price_paid, $payment_status, strval($registration_id)
         ) );
 
         HubspotTool::addRegistrantToHubspotList($user_data->hubspot_id);

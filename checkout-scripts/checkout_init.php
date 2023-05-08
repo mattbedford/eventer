@@ -6,10 +6,10 @@ if( ! defined( 'ABSPATH' ) ) exit;
 // Include classes
 require_once('EventerRegistrations.php');
 require_once('HubspotTool.php');
+require_once('CouponValidator.php');
 
 // Include dependencies
 require_once plugin_dir_path( __DIR__ ) . "vendor/autoload.php"; 
-require_once('add_new_registrant.php'); 
 require_once('form_validation.php');
 
 
@@ -25,7 +25,7 @@ $registration = new EventerRegistration($form_data);
 
 // Figure out default amount to pay
 $p = get_option('ticket_price');
-$amount_to_pay = intval(preg_replace("/[^0-9.]/", "", $price_calc));
+$amount_to_pay = intval(preg_replace("/[^0-9.]/", "", $p));
 
 // Check validity of their coupon if present
 if(isset($form_data['coupon']) && !empty($form_data['coupon'])) {

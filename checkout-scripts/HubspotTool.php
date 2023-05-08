@@ -15,7 +15,7 @@ class HubspotTool {
 
         // Return array of HS user id and sync status.
 
-        $existing_user = $this->checkEmailInHubspot($data['email']);
+        $existing_user = self::checkEmailInHubspot($data['email']);
 
         if($existing_user->total == 1) {
             
@@ -24,7 +24,7 @@ class HubspotTool {
 
         } else {
 
-            $hs_contact_id = $this->createNewHubspotPerson($data);
+            $hs_contact_id = self::createNewHubspotPerson($data);
 
             if($hs_contact_id === null) {
                 return array('Error', false);
@@ -47,13 +47,13 @@ class HubspotTool {
 
 	    $fields_string = json_encode($fields);
 	
-	    $response = $this->triggerHubspotCurl($url, $fields_string);
+	    $response = self::triggerHubspotCurl($url, $fields_string);
 
     }
 
 
     
-    private function checkEmailInHubspot($email) {
+    public static function checkEmailInHubspot($email) {
 
         $url = "https://api.hubapi.com/crm/v3/objects/contacts/search";
         $data = array(
@@ -71,14 +71,14 @@ class HubspotTool {
             ),
         );
     
-        $existing = $this->triggerHubspotCurl($url, json_encode($data));
+        $existing = self::triggerHubspotCurl($url, json_encode($data));
 
         return $existing;
 
     }
     
 
-    private function createNewHubspotPerson($data) {
+    public static function createNewHubspotPerson($data) {
         $url = "https://api.hubapi.com/contacts/v1/contact/createOrUpdate/email/" . $data['email'];
     
         if (isset($data['my_company_is']) && strpos($data['my_company_is'], 'Media') !== false) {
@@ -101,15 +101,15 @@ class HubspotTool {
                 ),
                 array(
                     'property' => 'firstname',
-                    'value'	=> $data['name']
+                    'value'	=> $data['fname']
                 ),
                 array(
                     'property' => 'lastname',
-                    'value'	=> $data['surname']
+                    'value'	=> $data['lname']
                 ),
                 array(
                     'property' => 'phone',
-                    'value'	=> $data['office_phone']
+                    'value'	=> $data['office']
                 ),
                 array(
                     'property' => 'website',
@@ -117,7 +117,7 @@ class HubspotTool {
                 ),
                 array(
                     'property' => 'address',
-                    'value'	=> $data['street_address']
+                    'value'	=> $data['address']
                 ),
                 array(
                     'property' => 'zip',
@@ -164,7 +164,7 @@ class HubspotTool {
         
         $fields_string = json_encode($fields);
 
-        $response = $this->triggerHubspotCurl($url, $fields_string);
+        $response = self::triggerHubspotCurl($url, $fields_string);
 
         if(isset($response->vid)) {
             return $response->vid;
@@ -174,7 +174,7 @@ class HubspotTool {
     }
 
 
-    private function triggerHubspotCurl($url, $fields_string) {
+    public static function triggerHubspotCurl($url, $fields_string) {
         $hubspot_token = get_option('hubspot_key');
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
