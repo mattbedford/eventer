@@ -118,8 +118,7 @@ function all_event_registrations() {
 function edit_registration($data) {
     $x = $data->get_json_params();
     $cleaned_data = array_map('sanitize_it', $x);
-    
-    $reg_id = $cleaned_data['id'];
+    if(isset($cleaned_data['id'])) $reg_id = $cleaned_data['id'];
     $reg_action = $cleaned_data['command'];
 
     // Based on command given, we either channel the request into one of 3 different actions: to create, edit, or delete a registration.
@@ -145,53 +144,20 @@ function edit_registration($data) {
 }
 
 function create_new_registration($data) {
-    global $wpdb;
-	$table_name = $wpdb->prefix . 'registrations';
+    // Ghetto fix for first name
+    $data['mkt'] = true;
+    $data['postcode'] = "";
+    if(isset($data['name'])) $data['fname'] = $data['name'];
+    if(isset($data['surname'])) $data['lname'] = $data['surname'];
+    if(isset($data['street_address'])) $data['address'] = $data['street_address'];
+    if(isset($data['office_phone'])) $data['office'] = $data['office_phone'];
+    if(isset($data['mobile_phone'])) $data['mobile'] = $data['mobile_phone'];
 
-	$email = $data['email'] ? $data['email'] : "unknown";
-	$name = $data['name'] ? $data['name'] : "unknown";
-	$surname = $data['surname'] ? $data['surname'] : "unknown";
-	$company = $data['company'] ? $data['company'] : "unknown";
-    $company_is = $data['my_company_is'] ? $data['my_company_is'] : "unknown";
-	$role = $data['role'] ? $data['role'] : "unknown";
-    $city = $data['city'] ? $data['city'] : "unknown";
-    $country = $data['country'] ? $data['country'] : "unknown";
-    $mobile_phone = $data['mobile_phone'] ? $data['mobile_phone'] : "unknown";
-    $office_phone = $data['office_phone'] ? $data['office_phone'] : "unknown";
-    $postcode = $data['postcode'] ? $data['postcode'] : "unknown";
-    $street_address = $data['street_address'] ? $data['street_address'] : "unknown";
-    $website = $data['website'] ? $data['website'] : "https://unknown.com";
-    $coupon_code = "none";
-    $sign_up_date = date("Y-m-d H:i:s");
-    $t_and_c = "1";
-    $paid = "0";
-    $payment_status = "Free entry";
-		
-	$create = $wpdb->insert( 
-		$table_name, 
-		array(  
-            'name' => $name, 
-            'surname' => $surname, 
-            'email' => $email, 
-            'company' => $company, 
-            'my_company_is' => $company_is,
-            'role' => $role, 
-            'city' => $city, 
-            'country' => $country, 
-            'mobile_phone' => $mobile_phone, 
-            'office_phone' => $office_phone, 
-            'postcode' => $postcode,
-            'street_address' => $street_address,
-            'website' => $website,
-            'sign_up_date' => $sign_up_date,
-            't_and_c' => $t_and_c,
-            'coupon_code' => $coupon_code,
-            'paid' => $paid,
-            'payment_status' => $payment_status
-
-        ) );
-
-    if($create !== false) {
+    require plugin_dir_path( __FILE__ ) . '/checkout-scripts/EventerRegistrations.php';
+    $create = new EventerRegistration($data);
+    
+    if($create->registration_id !== false) {
+        $create->confirmFreeUser(true);
 		$val = array("Success", "New registration successfully created");
 		return $val;
 	}
@@ -233,6 +199,7 @@ function edit_existing_registration($data) {
             office_phone = %s, 
             postcode = %s,
             street_address = %s,
+			hs_synched = 0,
             website = %s
 			WHERE id = %d
 		",
@@ -490,14 +457,23 @@ function delete_existing_coupon($id_to_delete) {
     return array("Hmm...", "Something went wrong and we couldn't find the invitation/coupon you tried to delete.");
 }
 
-
 function hubspot_sync($new_data) {
     $data = $new_data->get_json_params();
+	
+	// Ghetto fix again. Should probably be its own function...
+	$data['mkt'] = true;
+    if(!isset($data['postcode'])) $data['postcode'] = "";
+    if(isset($data['name'])) $data['fname'] = $data['name'];
+    if(isset($data['surname'])) $data['lname'] = $data['surname'];
+    if(isset($data['street_address'])) $data['address'] = $data['street_address'];
+    if(isset($data['office_phone'])) $data['office'] = $data['office_phone'];
+    if(isset($data['mobile_phone'])) $data['mobile'] = $data['mobile_phone'];
+	
 
-    require_once plugin_dir_path( __DIR__ ) . 'eventer/registrations/add_registrant_to_hubspot.php';
-    $res = set_up_and_send_new_contact($data);
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/checkout-scripts/HubspotTool.php';
+    $res = HubspotTool::createNewHubspotPerson($data);
 
-    if($res[0] == "Success") {
+    if($res !== null) {
         global $wpdb;
 	    $my_table = $wpdb->prefix . 'registrations';
 	    $id = intval($data['id']);
@@ -539,14 +515,19 @@ function hubspot_sync($new_data) {
         ) );
     }
     
-    return $res;
+    if($chk !== false) {
+		$val = array("Success", "User successfully synced with Hubspot.");
+		return $val;
+	}
+	$val = array("Uh oh", "Sync with Hubspot failed. We don't know any more than that, sorry.");
+    return $val;
     die();
 }
 
 function all_sync() {
-    require_once plugin_dir_path( __DIR__ ) . 'eventer/registrations/sync_all_registrations_with_hubspot.php';
-    $res = get_missing_registrations_from_hs();
-    return $res;
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/checkout-scripts/RegistrationsSync.php';
+    $res = new RegistrationsSync;
+    return array("Success", "Hubspot sync successfully carried out.");
     die();
 }
 

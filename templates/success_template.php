@@ -8,7 +8,7 @@ get_header();
 // Check if we have a valid coupon code first
 if(isset($_GET['coupon']) && !empty($_GET['coupon'])) {
 	$coupon_code = strtoupper(stripslashes(strip_tags(trim($_GET['coupon']))));
-	if($coupon_code == "NONE" || $coupon_code == "none" || empty($coupon_code)) {
+	if($coupon_code == "NO-CODE" || $coupon_code == "none" || empty($coupon_code)) {
 		// We have a paying customer. Go to Stripe checkout_id runtime
 		run_stripe_checkout_session_check();
 		exit;
@@ -37,6 +37,9 @@ function run_stripe_checkout_session_check() {
 
 	// Retrieve DB record of this particular user
 	$database_record_id = $stripe_sesh->client_reference_id;
+	
+	$amount = $stripe_sesh->amount_total;
+	
 
 	if(empty($database_record_id)) {
 		//DB record of this sign-up was not passed properly to Stripe, so now we dunno who we've got.
@@ -45,13 +48,24 @@ function run_stripe_checkout_session_check() {
 	}
 	
 	global $wpdb;
-	$result = $wpdb->get_var($wpdb->prepare("SELECT payment_status FROM {$wpdb->prefix}registrations WHERE id = '%s'", $database_record_id) );
-	if($result && $result === "Pending" && $stripe_sesh->payment_status == "paid") {
-		// We have a user from whom we expected payment
-		$chk = $wpdb->query( $wpdb->prepare("UPDATE {$wpdb->prefix}registrations SET payment_status = %s WHERE id = %s",'Paid', $database_record_id) );
-		require_once plugin_dir_path( __DIR__ ) . "checkout-scripts/add_registrant_to_hubspot.php";
-		do_post_pending_hs_list_add($database_record_id);
-
+	$row = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}registrations WHERE id = '%s'", $database_record_id) );
+	$result = $row[0]->payment_status;
+	
+	if($result && $result === "pending" && $stripe_sesh->payment_status == "paid") {
+		// We have a user from whom we expected payment and it has been paid.
+		// First update in DB, then add to HS list using new OOP methods.
+		
+		require_once plugin_dir_path( __DIR__ ) . "checkout-scripts/EventerRegistrations.php";
+		EventerRegistration::confirmAnyUser($amount, "Paid", $database_record_id);
+		
+		require_once plugin_dir_path( __DIR__ ) . "checkout-scripts/HubspotTool.php";
+		$hs_id = $wpdb->get_var($wpdb->prepare("SELECT hubspot_id FROM {$wpdb->prefix}registrations WHERE id = '%s'", $database_record_id) );
+		if(!empty($hs_id)) {
+			HubspotTool::addRegistrantToHubspotList($hs_id);
+		}
+		
+		
+		
 	} elseif(!$result) {
 		//We have a user who was not found in our registrations DB table
 		bail_we_have_a_problem("Your sign up has not been successful. :( ");

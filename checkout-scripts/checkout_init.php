@@ -59,14 +59,17 @@ if(isset($form_data['coupon']) && !empty($form_data['coupon'])) {
             $amount_to_pay = $coupon_result;
             break;
     }
+	do_stripe_routine($registration, $coupon_instance);
+} else {
+	do_stripe_routine($registration);
 }
 
 // If we got this far, we're going to Stripe
-do_stripe_routine($registration, $coupon_instance);
 
 
 
-function do_stripe_routine($reg_obj, $coupon_obj) {
+
+function do_stripe_routine($reg_obj, $coupon_obj = null) {
         
     $stripe_api_access = get_option('alt_stripe_key');
 
@@ -77,12 +80,19 @@ function do_stripe_routine($reg_obj, $coupon_obj) {
     $event_name = get_option('event_name');
     $email = $reg_obj->data['email'];
 
-    $amount = intval($coupon_obj->coupon_result * 100);
-
+	if($coupon_obj !== null) {
+    	$amount = intval($coupon_obj->coupon_result * 100);
+		$the_code = $coupon_obj->coupon_code;
+	} else {
+		$p = get_option('ticket_price');
+		$amount = intval(preg_replace("/[^0-9.]/", "", $p)) * 100;
+		$the_code = "no-code";
+	}
+	
     $checkout_session = \Stripe\Checkout\Session::create([
     'customer_email' => $email,
     'invoice_creation' => ['enabled' => true],
-    'client_reference_id' => $reg_object->registration_id,
+    'client_reference_id' => $reg_obj->registration_id,
     'line_items' => [[
         'price_data' => [
             'currency' => 'chf',
@@ -94,7 +104,7 @@ function do_stripe_routine($reg_obj, $coupon_obj) {
         'quantity' => 1,
     ]],
     'mode' => 'payment',
-    'success_url' => $domain . '/success?coupon=' . $coupon_obj->coupon_code . '&session_id={CHECKOUT_SESSION_ID}',
+    'success_url' => $domain . '/success?coupon=' . $the_code . '&session_id={CHECKOUT_SESSION_ID}',
     'cancel_url' => $domain . '/checkout',
     ]);
 

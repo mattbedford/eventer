@@ -23,7 +23,7 @@ class EventerRegistration {
 
 
     private function checkHubspotId() {
-
+        require_once "HubspotTool.php";
         // Return two-part array: hubspot ID and whether-synced
         $res = HubspotTool::hubspotExistsHandler($this->data);
         return $res;
@@ -69,7 +69,7 @@ class EventerRegistration {
                 'city' => $this->data['city'],
                 'country' => $this->data['country'],
                 't_and_c' => $this->data['mkt'],
-                'interests' => $this->data['tags'],
+                'interests' => $this->data['interests'],
                 'mobile_phone' => $this->data['mobile'],
                 'office_phone' => $this->data['office'],
                 'website' => $this->data['website'],
@@ -95,19 +95,17 @@ class EventerRegistration {
 
     // Two ways into the same update/confirm function.
     // First one is only called on valid coupon entry or manual data entry.
-    // Second is called after someone goes through Stripe
-    public function confirmFreeUser() {
-        $this->confirmAnyUser(0, "Free entry", $this->registration_id);
-
+    // Second method is called direct from success template after someone goes through Stripe
+    public function confirmFreeUser($block_mail = false) {
+		$this->updateCouponUsageCount();
+        if($block_mail !== false) {
+            self::confirmAnyUser(0, "Manual data entry", $this->registration_id, true);
+        } else {
+            self::confirmAnyUser(0, "Free entry", $this->registration_id);
+        }
     }
 
-    public static function confirmPaidUser($price_paid, $payment_status, $registration_id) {
-        $this->confirmAnyUser($price_paid, $payment_status, $registration_id);
-    }
-
-
-
-    private function confirmAnyUser($price_paid, $payment_status, $registration_id) {
+    public static function confirmAnyUser($price_paid, $payment_status, $registration_id, $block_mail = false) {
         // - Updates user payment status in database
         // - Sends a welcome mail and updates in database TO DO: Merge these DB queries into one.
         // - Adds user to confirmed list in HS.
@@ -121,27 +119,48 @@ class EventerRegistration {
                 FROM $my_table 
                 WHERE id = %d
             ",
-               intval($registration_id)
+            intval($registration_id)
         ));
 
 		$user_data = $query[0];
 		
-        $welcome_mail = new MailFunction($user_data->email, $user_data->name, $user_data->surname, "welcome");
+        $welcome = 0;
 
+        if($block_mail === false) {
+            $welcome_mail = new MailFunction($user_data->email, $user_data->name, $user_data->surname, "welcome");
+            $welcome = 1;
+        }
 
         $wpdb->query( $wpdb->prepare( 
          "
              UPDATE $my_table 
              SET paid = %d,
              payment_status = %s,
-             welcome_email_sent = 1,
-             WHERE id = %s
+             welcome_email_sent = %d
+             WHERE id = %d
          ",
-            $price_paid, $payment_status, strval($registration_id)
+            $price_paid, $payment_status, $welcome, intval($registration_id)
         ) );
 
+		require_once "HubspotTool.php";
         HubspotTool::addRegistrantToHubspotList($user_data->hubspot_id);
-
+		
     }
+	
+	private function updateCouponUsageCount() {
+		
+		if(!isset($this->data['coupon']) || empty($this->data['coupon'])) return; 
+
+        require_once "CouponValidator.php";
+        $coupon = new CouponValidator($this->data['coupon']);
+
+		if($coupon->coupon_result === 'zerotopay' || is_numeric($coupon->coupon_result)) {
+			$new_coupon_usage_count = intval($coupon->actual_uses);
+			$new_coupon_usage_count++;
+			update_post_meta($coupon->invitation_post_id, 'actual_uses', $new_coupon_usage_count);
+		}
+		
+	}
+	
 
 }

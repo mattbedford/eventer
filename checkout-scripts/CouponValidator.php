@@ -20,7 +20,7 @@ class CouponValidator {
     public $coupon_result;
     public $invitation_post_id;
     private $max_uses;
-    private $actual_uses;
+    public $actual_uses;
     private $discount;
     public $coupon_code;
     private $amount_to_pay;

@@ -73,7 +73,7 @@ function full_field_check($data) {
 
 	global $wpdb;
 	$reg_table = $wpdb->prefix . 'registrations';
-	$result = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $reg_table WHERE email = %s", $data['email'] ) );
+	$result = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $reg_table WHERE email = %s AND payment_status != 'pending' AND payment_status != 'Pending'", $data['email'] ) );
 	if($result >= 1) {
 		$res = send_return_array('error', 'usedemail', array("email"));
 		return $res;
