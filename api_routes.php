@@ -125,3 +125,14 @@ add_action('rest_api_init', function () {
         }
     ));
   });
+
+//Resend welcome email - site_url()/wp-json/core-vue/resend-welcome
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/resend-welcome',array(
+        'methods'  => 'POST',
+        'callback' => 'resend_welcome_mail',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });

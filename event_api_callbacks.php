@@ -591,3 +591,29 @@ function do_speaker_codes() {
         return array('Results', 'We attempted to push a total of ' . $num . ' speakers into Hubspot.' . $results['good'] . ' were successful.');
         die();
 }
+
+function resend_welcome_mail($new_data) {
+    $data = $new_data->get_json_params();
+    $mail = $data['email'];
+    $name = $data['name'];
+    $surname = $data['surname'];
+    if(!isset($mail) || empty($mail)) return array("Error", "No email address was provided for this registered user.");
+    if(!isset($name) || empty($name)) $name = "Friend";
+    if(!isset($surname) || empty($surname)) $surname = "";
+
+    $welcome_mail = new MailFunction($mail, $name, $surname, "welcome");
+
+    global $wpdb; 
+    $my_table = $wpdb->prefix . 'registrations';
+    $wpdb->query( $wpdb->prepare( 
+        "
+            UPDATE $my_table 
+            SET welcome_email_sent = 1
+            WHERE id = %d
+        ",
+        intval($data['id'])
+    ) );
+
+    return array("Success", "Welcome email correctly sent to user " . $mail);
+    die();
+}

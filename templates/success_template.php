@@ -38,7 +38,7 @@ function run_stripe_checkout_session_check() {
 	// Retrieve DB record of this particular user
 	$database_record_id = $stripe_sesh->client_reference_id;
 	
-	$amount = $stripe_sesh->amount_total;
+	$amount = $stripe_sesh->amount_total / 100;
 	
 
 	if(empty($database_record_id)) {
