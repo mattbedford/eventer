@@ -41,22 +41,20 @@
               <strong>
                {{registrationsList.filter(item => item.hs_synched === '0').length}}
               </strong>
-               unsynched contacts
+               unsynced contacts
             </p>
             <p class="sync-warn" v-else>Watch out. You have
                {{registrationsList.filter(item => item.hs_synched === '0').length}}
-               unsynched contacts.
+               unsynced contacts.
               Trying to sync a large number (> 100) <em>will</em> lead to problems.
                Sync now for a happier life.
             </p>
-          <button @click="syncAllWithHubspot()">Sync all data</button>
+          <button @click="syncAllWithHubspot()">Sync from Hubspot</button>
           <br><br>
-          <button @click="doSpeakerCodes()">Just the speakers</button>
-          <p>Hitting "Just the speakers" will sync just the
-            <strong>speaker invitation codes</strong> in Hubspot.
-            It does <em>all speakers</em> at once and it can be used multiple times, no problem.
-          (Please note, we do not have all the speaker's personal info, so only email and coupon
-          will be synced).</p>
+          <p>
+            Hit this button to call Hubspot and import any registered users
+            who appear there but are not yet visibile in the table above.
+          </p>
         </div>
         <div class="export-section">
           <h3>
@@ -91,7 +89,7 @@
         >
           <svg class="sync-me" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M434.67 285.59v-29.8c0-98.73-80.24-178.79-179.2-178.79a179 179 0 0 0-140.14 67.36m-38.53 82v29.8C76.8 355 157 435 256 435a180.45 180.45 0 0 0 140-66.92"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="m32 256 44-44 46 44m358 0-44 44-46-44"/></svg>
           <span>
-            Not yet synched with Hubspot.
+            Not yet synced with Hubspot.
           </span>
         </span>
 
@@ -173,6 +171,16 @@
             </span></strong></li>
             <li>User interests: <strong><span v-html="sortLikes(oneToEdit)">
             </span></strong></li>
+            <li>Welcome email sent: <strong><span v-html="welcomedOrNot(oneToEdit)">
+            </span></strong>
+              <a style="margin-left:10px;text-decoration:none;"
+              href="#" @click.prevent="resendWelcomeEmail()">
+                Send now
+                <span style="font-size:20px;position:relative;bottom:-1px;">
+                  &#8594;
+                </span>
+              </a>
+            </li>
           </ul>
 
           <div class="double">
@@ -295,7 +303,7 @@ export default {
         .then((result) => { this.registrationsList = result; });
     },
     async syncAllWithHubspot() {
-      this.announce = ['Ok. Let\'s do this', 'Please wait while we synch Hubspot data. This may take a few minutes. Please do not close this tab.'];
+      this.announce = ['Ok. Let\'s do this', 'Please wait while we sync Hubspot data. This may take a few minutes. Please do not close this tab.'];
       const url = auth.allSync;
       const headers = {
         credentials: 'same-origin',
@@ -311,6 +319,18 @@ export default {
             this.announce = ['Uh oh', 'Something went wrong with the sync. Sorry, we do not know any more than that.'];
           }
         });
+    },
+    async resendWelcomeEmail() {
+      const data = JSON.stringify(this.oneToEdit);
+      const url = auth.resendWelcome;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'POST', headers, body: data })
+        .then((result) => result.json())
+        .then((result) => { this.announce = result; });
     },
     async editRegistration(cmd) {
       if ((cmd !== 'delete') && (!this.oneToEdit.name || !this.oneToEdit.surname || !this.oneToEdit.email
@@ -410,6 +430,10 @@ export default {
     sortLikes(rowObj) {
       if (!rowObj.interests) return '';
       return rowObj.interests.replaceAll(',', ', ');
+    },
+    welcomedOrNot(rowObj) {
+      if (rowObj.welcome_email_sent === '1' || rowObj.welcome_email_sent === 1) return 'Yes';
+      return 'No';
     },
     registrationDate(rowObj) {
       if (!rowObj.sign_up_date) return '';

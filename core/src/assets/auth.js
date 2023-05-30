@@ -12,5 +12,6 @@ const config = {
   hubspotSync: `${rootUrl}/wp-json/core-vue/hubspot-sync`,
   allSync: `${rootUrl}/wp-json/core-vue/all-sync`,
   speakerCodes: `${rootUrl}/wp-json/core-vue/speaker-codes`,
+  resendWelcome: `${rootUrl}/wp-json/core-vue/resend-welcome`,
 };
 export default config;
