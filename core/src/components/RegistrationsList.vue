@@ -263,10 +263,6 @@ export default {
           field: this.paidAmount,
         },
         {
-          label: 'Printed',
-          field: this.printedOrNot,
-        },
-        {
           label: 'Registered',
           field: this.registrationDate,
         },
@@ -417,12 +413,6 @@ export default {
         return 'Abandoned cart';
       }
       return rowObj.payment_status;
-    },
-    printedOrNot(rowObj) {
-      if (rowObj.printed === '0') {
-        return 'No';
-      }
-      return 'Yes';
     },
     editRegistrant(rowId) {
       this.oneToEdit = this.registrationsList[rowId];

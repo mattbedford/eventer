@@ -136,3 +136,16 @@ add_action('rest_api_init', function () {
         }
     ));
   });
+
+
+// NEW VERSION 6
+//Print badges - site_url()/wp-json/core-vue/print-badge
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/print-badge',array(
+        'methods'  => 'POST',
+        'callback' => 'print_array_of_badges',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });

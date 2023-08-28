@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// NEW VERSION 6 (just line 40)
+
 
 function run_database_set_up() {
     
@@ -35,6 +37,7 @@ function run_database_set_up() {
 		coupon_code text,
 		sign_up_date DATE NOT NULL,
 		printed tinyint(1) DEFAULT '0' NOT NULL,
+		badge_link text, 
 		hubspot_id text,
 		hs_synched tinyint(1) DEFAULT '0' NOT NULL,
 		welcome_email_sent tinyint(1) DEFAULT '0' NOT NULL,

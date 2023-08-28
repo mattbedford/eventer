@@ -26,11 +26,19 @@ function all_event_options() {
         "badge_y",
         "badge_x_p2",
         "badge_y_p2",
+        "badge_company_format",
+        "badge_job_format",
+        "badge_name_format",
     );
     $return_array = array();
 
     foreach($all_options as $single_opt) {
         $existing_option = get_option($single_opt);
+        if($single_opt === 'badge_company_format' ||
+        $single_opt === 'badge_job_format' ||
+        $single_opt === 'badge_name_format') {
+            $existing_option = unserialize($existing_option);
+        }
         if(!empty($existing_option) && $existing_option !== FALSE) {
             $return_array[] = array($single_opt, $existing_option);
         }
@@ -66,15 +74,29 @@ function set_the_options($args) {
             "badge_y",
             "badge_x_p2",
             "badge_y_p2",
+            "badge_company_format",
+            "badge_job_format",
+            "badge_name_format",
     );
     $errors = array();
 
     foreach($data as $key => $val) {
         $new_option = strval($key);
-        $new_value = stripslashes(strip_tags(trim($val)));
+        if(is_array($val)) {
+            $arrval = array();
+            foreach($val as $subkey => $subval) {
+                if(null == $subval) continue;
+                $subkey = stripslashes(strip_tags(trim($subkey)));
+                $subval = stripslashes(strip_tags(trim($subval)));
+                $arrval[$subkey] = $subval;
+            }
+            $new_value = serialize($arrval);
+        } else {
+            $new_value = stripslashes(strip_tags(trim($val)));
+        }
 
         // Make sure options are legit
-        if(!in_array($new_option, $permitted)) return "Sorry, you submitted a forbidden option";
+        if(!in_array($new_option, $permitted)) return array("Error", "Sorry, you submitted a forbidden option");
 
         // Catch any empty fileds in form submission
         if($new_value == null || empty($new_value)) continue;
@@ -616,4 +638,61 @@ function resend_welcome_mail($new_data) {
 
     return array("Success", "Welcome email correctly sent to user " . $mail);
     die();
+}
+
+// NEW VERSION 6
+function print_array_of_badges($raw_data) {
+
+    $data = $raw_data->get_json_params();
+
+    $ids = $data['ids'];
+    if(empty($ids)) return array("Error", "No registration IDs were provided.");
+
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/BadgeBuilder.php';
+
+    $output = array();
+    $errors = array();
+
+    if(count($ids) > 1) {
+
+        BadgeBuilder::kill_the_old_badges();
+        BadgeBuilder::make_the_badge_folder();
+
+        foreach($ids as $single_id) {
+            $badge = new BadgeBuilder($single_id, false); //second var denotes whether we're printing a single badge or not
+            $output[] = $badge->badge_output; // Single url of file
+            if(!empty($badge->errors)) {
+                $errors[] = array(
+                    'id' => $badge->id, // Single id of badge item (i.e. registration ID) with issues
+                    'errors' => implode(' -> ', $badge->errors), // All errors for this badge item
+                );
+            }
+        }
+
+        $return_files = BadgeBuilder::zipOutput();
+        $link_string = " <a href='$return_files' target='_blank' download>$return_files</a>";
+        $message = "All badges were successfully generated and are available for download here:" . $link_string;
+
+    } else {
+
+        $badge = new BadgeBuilder($ids[0], true);
+        $output[] = " <a href='$badge->badge_output' target='_blank' download>$badge->badge_output</a>"; // Single url of file
+        if(!empty($badge->errors)) {
+            $errors[] = array(
+                'registration_id' => $badge->id, // Single id of badge item (i.e. registration ID) with issues
+                'errors' => implode(' -> ', $badge->errors), // All errors for this badge item
+            );
+        }
+
+        $return_files = $output[0];
+        $message = "Your badge was successfully generated and is available for download here:" . $return_files;    
+
+    }
+
+    if(!empty($errors)) {
+        return array("Error", "Please try again. There were errors with the following: " . json_encode($errors));
+    }
+
+    return array("Success", $message);
+
 }

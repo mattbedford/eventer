@@ -81,7 +81,10 @@
         <h3>Tickets & badge setup</h3>
         <form id="badge" @submit.prevent="sendOptions('badges')">
             <label for="badge_template">Badge template
-            <input type="file" id="badge_template"/></label>
+              <span v-if="badges.badge_template" style="font-weight:600; color:#7fc41c;">
+                Current: {{ badges.badge_template }}
+              </span>
+            <input type="file" id="badge_template" @change="badgeUpload()"/></label>
             <label for="ticket_price">Ticket price
             <input type="number" id="ticket_price" v-model="badges.ticket_price"/></label>
             <p>Text positioning badge page 1</p>
@@ -97,6 +100,102 @@
               <input type="number" id="p2x" v-model="badges.badge_x_p2"/></label>
               <label for="p2y">Y coordinate
               <input type="number" id="p2y" v-model="badges.badge_y_p2"/></label>
+            </div>
+            <br>
+            <hr>
+            <p>Badge <strong>name field</strong></p>
+            <div class="double">
+              <label for="bnamecolor">Color
+              <select id="bnamecolor" v-model="badges.badge_name_format.color">
+                <option value="black">Black</option>
+                <option value="dark">Dark</option>
+                <option value="luxury">Luxury</option>
+                <option value="blue">Dagorà blue</option>
+                <option value="green">Dagorà green</option>
+              </select>
+              </label>
+              <label for="bnamefontsize">Font size
+              <input type="number" id="bnamefontsize"
+              v-model="badges.badge_name_format.fontsize"/></label>
+            </div>
+            <div class="double">
+              <label for="bnamealign">Text align
+              <select id="bnamealign" v-model="badges.badge_name_format.align">
+                <option value="L">Left</option>
+                <option value="C">Center</option>
+                <option value="R">Right</option>
+              </select>
+              </label>
+              <label for="bnamecaps">Capitalize text?
+                <select id="bnamecaps" v-model="badges.badge_name_format.caps">
+                <option value="yes">No. Don't capitalize</option>
+                <option value="no">Yes. All caps.</option>
+              </select>
+              </label>
+            </div>
+
+            <hr>
+            <p>Badge <strong>job title field</strong></p>
+            <div class="double">
+              <label for="bjobcolor">Color
+              <select id="bjobcolor" v-model="badges.badge_job_format.color">
+                <option value="black">Black</option>
+                <option value="dark">Dark</option>
+                <option value="luxury">Luxury</option>
+                <option value="blue">Dagorà blue</option>
+                <option value="green">Dagorà green</option>
+              </select>
+              </label>
+              <label for="bjobfontsize">Font size
+              <input type="number" id="bjobfontsize"
+              v-model="badges.badge_job_format.fontsize"/></label>
+            </div>
+            <div class="double">
+              <label for="bjobalign">Text align
+              <select id="bjobalign" v-model="badges.badge_job_format.align">
+                <option value="L">Left</option>
+                <option value="C">Center</option>
+                <option value="R">Right</option>
+              </select>
+              </label>
+              <label for="bjobcaps">Capitalize text?
+                <select id="bjobcaps" v-model="badges.badge_job_format.caps">
+                <option value="yes">No. Don't capitalize</option>
+                <option value="no">Yes. All caps.</option>
+              </select>
+              </label>
+            </div>
+
+            <hr>
+            <p>Badge <strong>company field</strong></p>
+            <div class="double">
+              <label for="bcompcolor">Color
+              <select id="bcompcolor" v-model="badges.badge_company_format.color">
+                <option value="black">Black</option>
+                <option value="dark">Dark</option>
+                <option value="luxury">Luxury</option>
+                <option value="blue">Dagorà blue</option>
+                <option value="green">Dagorà green</option>
+              </select>
+              </label>
+              <label for="bcompfontsize">Font size
+              <input type="number" id="bcompfontsize"
+              v-model="badges.badge_company_format.fontsize"/></label>
+            </div>
+            <div class="double">
+              <label for="bcompalign">Text align
+              <select id="bcompalign" v-model="badges.badge_company_format.align">
+                <option value="L">Left</option>
+                <option value="C">Center</option>
+                <option value="R">Right</option>
+              </select>
+              </label>
+              <label for="bcompcaps">Capitalize text?
+                <select id="bcompcaps" v-model="badges.badge_company_format.caps">
+                <option value="yes">No. Don't capitalize</option>
+                <option value="no">Yes. All caps.</option>
+              </select>
+              </label>
             </div>
 
             <input type="submit" value="Save edits"/>
@@ -147,6 +246,24 @@ export default {
         badge_y: null,
         badge_x_p2: null,
         badge_y_p2: null,
+        badge_company_format: {
+          color: null,
+          fontsize: null,
+          align: null,
+          caps: null,
+        },
+        badge_job_format: {
+          color: null,
+          fontsize: null,
+          align: null,
+          caps: null,
+        },
+        badge_name_format: {
+          color: null,
+          fontsize: null,
+          align: null,
+          caps: null,
+        },
       },
     };
   },
@@ -192,6 +309,25 @@ export default {
               this.badges[reskey] = resval;
             }
           });
+        });
+    },
+    async badgeUpload() {
+      const file = document.getElementById('badge_template').files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      const url = `${auth.rootUrl}/wp-json/wp/v2/media/`;
+      const headers = {
+        credentials: 'same-origin',
+        'X-WP-Nonce': this.nonce,
+      };
+      fetch(url, { method: 'POST', headers, body: formData })
+        .then((result) => result.json())
+        .then((result) => {
+          if (result.id) {
+            this.badges.badge_template = result.source_url;
+          } else {
+            this.announce = ['Error', 'Something went wrong with your upload. Please check file and try again.'];
+          }
         });
     },
   },

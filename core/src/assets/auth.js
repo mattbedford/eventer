@@ -13,5 +13,7 @@ const config = {
   allSync: `${rootUrl}/wp-json/core-vue/all-sync`,
   speakerCodes: `${rootUrl}/wp-json/core-vue/speaker-codes`,
   resendWelcome: `${rootUrl}/wp-json/core-vue/resend-welcome`,
+  editBadges: `${rootUrl}/wp-json/core-vue/edit-badges`,
+  printBadge: `${rootUrl}/wp-json/core-vue/print-badge`,
 };
 export default config;

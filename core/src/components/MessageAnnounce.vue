@@ -1,7 +1,7 @@
 <template>
   <div class="message-announce">
     <h2>{{message[0]}}</h2>
-    <p>{{message[1]}}</p>
+    <p v-html="message[1]"></p>
     <button class="closer" @click="$emit('closeMessage')">&#x2716;</button>
   </div>
 </template>

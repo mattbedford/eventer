@@ -6,7 +6,7 @@ Plugin Name: Eventer
 Description: An event management interface to help set up perfect events.
 Plugin URI:  https://dagora.ch
 Author:      Matt Bedford
-Version:     5.0
+Version:     6.0
 License:     GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.txt
 
@@ -63,6 +63,7 @@ function event_setup() {
 	echo "<div id='app'></div>";
 }
 
+// NEW VERSION 6
 //Load up scripts and styles for our admin "mission control" page
 add_action( 'admin_enqueue_scripts', 'load_vue_core' );
 function load_vue_core($hook) {
@@ -81,20 +82,21 @@ function load_vue_core($hook) {
 		
 		case false:
 			$app_root = site_url() . "/wp-content/plugins/eventer/dist/js/";
-			$app = "app.1b72acf7.js";
-			$chunks = "chunk-vendors.08d9be34.js";
+			$app = "app/eventerWebpack.js";
+			$chunks = "chunk-vendors/eventerWebpack.js";
 			wp_enqueue_style('good-table-styles', site_url() . "/wp-content/plugins/eventer/dist/css/app.b90c420f.css");
 			break;
 
 		default:
 			$app_root = site_url() . "/wp-content/plugins/eventer/dist/js/";
-			$app = "app.1b72acf7.js";
-			$chunks = "chunk-vendors.08d9be34.js";
+			$app = "app/eventerWebpack.js";
+			$chunks = "chunk-vendors/eventerWebpack.js";
 			wp_enqueue_style('good-table-styles', site_url() . "/wp-content/plugins/eventer/dist/css/app.b90c420f.css");
 			break;
 	}
 
-	wp_localize_script( 'wp-api', 'wpApiSettings', array(
+	wp_register_script( 'wp-api-mine', false );
+	wp_localize_script( 'wp-api-mine', 'wpApiSettings', array(
 		'nonce' => wp_create_nonce( 'wp_rest' )
 	) );
 	
@@ -114,7 +116,9 @@ function load_vue_core($hook) {
 	);
 	
 	wp_enqueue_style( 'vue_styles', plugins_url('assets/styles.css', __FILE__), array(), '');
-	wp_enqueue_script('wp-api');
+	wp_enqueue_script('wp-api-mine');
 	wp_enqueue_script('vue_app');
 	wp_enqueue_script('vue_chunks');
+
 }
+

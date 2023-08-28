@@ -13,10 +13,10 @@
                   Event setup
                 </button></li>
 
-                <li :class="{active: onPage === 'badge'}">
-                  <button @click="($emit('pageSelect', 'badge'),
-                selectThis('badge'))">
-                  Registrations & badges
+                <li :class="{active: onPage === 'registrations'}">
+                  <button @click="($emit('pageSelect', 'registrations'),
+                selectThis('registrations'))">
+                  Registrations
                   </button></li>
 
                 <li :class="{active: onPage === 'coupon'}">
@@ -24,9 +24,9 @@
                     Coupons & invitations
                   </button></li>
 
-                <li :class="{active: onPage === 'invitation'}">
-                  <button @click="($emit('pageSelect', 'invitation'), selectThis('invitation'))">
-                    Data
+                <li :class="{active: onPage === 'badge'}">
+                  <button @click="($emit('pageSelect', 'badge'), selectThis('badge'))">
+                    Badges
                   </button></li>
             </ul>
         </div>

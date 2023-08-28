@@ -1,30 +1,31 @@
 //const { stringifyQuery } = require("vue-router");
+jQuery( document ).ready(function() {
+	jQuery('input').blur(function(){
+		jQuery(this).addClass('notok'); 
+	});
 
-jQuery('input').blur(function(){
-	jQuery(this).addClass('notok'); 
-});
+	let submitOnce = 0;
 
-let submitOnce = 0;
-
-jQuery('.checkout-form').submit(function(event) {
-	event.preventDefault();
-	if(submitOnce < 2) {
-		submitOnce++;
-		let emailOk = runOwnEmailCheck();
-		if (emailOk) {
+	jQuery('.checkout-form').submit(function(event) {
+		event.preventDefault();
+		if(submitOnce < 2) {
+			submitOnce++;
+			let emailOk = runOwnEmailCheck();
+			if (emailOk) {
+				document.querySelector(".checkout-form").submit();
+			} else {
+				let mailField = document.querySelector('#email')
+				mailField.setCustomValidity('It seems your email does not correspond to the other data you supplied. Please note that your personal work email is mandatory for communication purposes and to ensure entry to the event.');
+				mailField.reportValidity();
+				setTimeout(() => {
+					mailField.setCustomValidity("");
+				}, "9000");
+			}
+		} 
+		if(submitOnce >= 2) {
 			document.querySelector(".checkout-form").submit();
-		} else {
-			let mailField = document.querySelector('#email')
-			mailField.setCustomValidity('It seems your email does not correspond to the other data you supplied. Please note that your personal work email is mandatory for communication purposes and to ensure entry to the event.');
-			mailField.reportValidity();
-			setTimeout(() => {
-				mailField.setCustomValidity("");
-			}, "9000");
 		}
-	} 
-	if(submitOnce >= 2) {
-		document.querySelector(".checkout-form").submit();
-	}
+	});
 });
 
 function runOwnEmailCheck() {
