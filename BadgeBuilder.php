@@ -351,8 +351,11 @@ class BadgeBuilder {
                 $company['font_size'] = $this->company_format['fontsize'];
             }
             if(!empty($this->company_format['caps'])) {                
-                if($this->company_format['caps'] == 'yes') $company['caps'] = true;
-                if($this->company_format['caps'] == 'no') $company['caps'] = false;
+                if($this->company_format['caps'] == 'yes') {
+					$company['caps'] = true;
+				} else {
+					$company['caps'] = false;
+				}  
             }
             if(!empty($this->company_format['align'])) {
                 $company['align'] = $this->company_format['align'];
