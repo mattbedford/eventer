@@ -128,8 +128,8 @@
               </label>
               <label for="bnamecaps">Capitalize text?
                 <select id="bnamecaps" v-model="badges.badge_name_format.caps">
-                <option value="yes">No. Don't capitalize</option>
-                <option value="no">Yes. All caps.</option>
+                <option value="no">No. Don't capitalize</option>
+                <option value="yes">Yes. All caps.</option>
               </select>
               </label>
             </div>
@@ -160,8 +160,8 @@
               </label>
               <label for="bjobcaps">Capitalize text?
                 <select id="bjobcaps" v-model="badges.badge_job_format.caps">
-                <option value="yes">No. Don't capitalize</option>
-                <option value="no">Yes. All caps.</option>
+                <option value="no">No. Don't capitalize</option>
+                <option value="yes">Yes. All caps.</option>
               </select>
               </label>
             </div>
@@ -192,8 +192,8 @@
               </label>
               <label for="bcompcaps">Capitalize text?
                 <select id="bcompcaps" v-model="badges.badge_company_format.caps">
-                <option value="yes">No. Don't capitalize</option>
-                <option value="no">Yes. All caps.</option>
+                <option value="no">No. Don't capitalize</option>
+                <option value="yes">Yes. All caps.</option>
               </select>
               </label>
             </div>
