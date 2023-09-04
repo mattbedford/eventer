@@ -469,7 +469,7 @@ export default {
         // eslint-disable-next-line
         score++;
       }
-      if (rowObj.website.indexOf(domain) !== -1) {
+      if (rowObj.website && rowObj.website.indexOf(domain) !== -1) {
         // eslint-disable-next-line
         score++;
       }
