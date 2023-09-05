@@ -1,16 +1,16 @@
 <?php
-// NEW VERSION 6
 
+/*
+ * Using the custom library tFPDF modded from FPDF and the FPDI library to import external files and write on top of them. 
+ * 
+ * */
 
-$path = preg_replace('/wp-content.*$/','',__DIR__);
-include($path.'wp-load.php'); 
 
 require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
-require_once plugin_dir_path( __FILE__ ) . '/vendor/setasign/fpdi/src/autoload.php';
-
-
 use setasign\Fpdi\Fpdi;
 use setasign\Fpdi\PdfReader;
+use setasign\Fpdi\Tfpdf;
+
 
 class BadgeBuilder {
 
@@ -157,10 +157,10 @@ class BadgeBuilder {
         $result = $wpdb->get_results($sql);
 
         if (!empty($result)) {
-            $this->first_name = $this->rationalize_text(strip_tags(trim($result[0]->name)));
-            $this->last_name = $this->rationalize_text(strip_tags(trim($result[0]->surname)));
-            $this->role = $this->rationalize_text(strip_tags(trim($result[0]->role)));
-            $this->company = $this->rationalize_text(strip_tags(trim($result[0]->company)));
+            $this->first_name = strip_tags(trim($result[0]->name));
+            $this->last_name = strip_tags(trim($result[0]->surname));
+            $this->role = strip_tags(trim($result[0]->role));
+            $this->company = strip_tags(trim($result[0]->company));
         } else {
             $this->errors[] = "Could not find registration data for this visitor";
         }
@@ -168,37 +168,19 @@ class BadgeBuilder {
     }
 
 
-    private function rationalize_text($original_text) {
-
-        // Very possibly overkill....
-        $fixed_text = $this->replace_mangled_chars($original_text);
-        $fixed_text = htmlspecialchars($fixed_text, ENT_QUOTES, 'UTF-8', false);
-        //$fixed_text = iconv('utf-8', 'cp1252', $html_text);
-		
-        return $fixed_text;
-
-    }
-
 	
-	private function replace_mangled_chars($text) {
-		
-
-		$input = array('&amp;', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'ÿ', 'Ā', 'ā', 'Ă', 'ă', 'Ą', 'ą', 'Ć', 'ć', 'Ĉ', 'ĉ', 'Ċ', 'ċ', 'Č', 'č', 'Ď', 'ď', 'Đ', 'đ', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'ę', 'Ě', 'ě', 'Ĝ', 'ĝ', 'Ğ', 'ğ', 'Ġ', 'ġ', 'Ģ', 'ģ', 'Ĥ', 'ĥ', 'Ħ', 'ħ', 'Ĩ', 'ĩ', 'Ī', 'ī', 'Ĭ', 'ĭ', 'Į', 'į', 'İ', 'ı', 'Ĳ', 'ĳ', 'Ĵ', 'ĵ', 'Ķ', 'ķ', 'Ĺ', 'ĺ', 'Ļ', 'ļ', 'Ľ', 'ľ', 'Ŀ', 'ŀ', 'Ł', 'ł', 'Ń', 'ń', 'Ņ', 'ņ', 'Ň', 'ň', 'ŉ', 'Ō', 'ō', 'Ŏ', 'ŏ', 'Ő', 'ő', 'Œ', 'œ', 'Ŕ', 'ŕ', 'Ŗ', 'ŗ', 'Ř', 'ř', 'Ś', 'ś', 'Ŝ', 'ŝ', 'Ş', 'ş', 'Š', 'š', 'Ţ', 'ţ', 'Ť', 'ť', 'Ŧ', 'ŧ', 'Ũ', 'ũ', 'Ū', 'ū', 'Ŭ', 'ŭ', 'Ů', 'ů', 'Ű', 'ű', 'Ų', 'ų', 'Ŵ', 'ŵ', 'Ŷ', 'ŷ', 'Ÿ', 'Ź', 'ź', 'Ż', 'ż', 'Ž', 'ž', 'ſ', 'ƒ', 'Ơ', 'ơ', 'Ư', 'ư', 'Ǎ', 'ǎ', 'Ǐ', 'ǐ', 'Ǒ', 'ǒ', 'Ǔ', 'ǔ', 'Ǖ', 'ǖ', 'Ǘ', 'ǘ', 'Ǚ', 'ǚ', 'Ǜ', 'ǜ', 'Ǻ', 'ǻ', 'Ǽ', 'ǽ', 'Ǿ', 'ǿ');
-  		$output = array('&', 'A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'OE', 'oe', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o');
-	
-		$new_text = str_replace($input, $output, $text);
-		
-		return $new_text;
-			
-	}
-	
-
     private function build_badge() {
 
         // Instantiate
-        $pdf = new FPDI(); 
-        $pdf->AddPage(); 
-        
+		$pdf = new Tfpdf\Fpdi();
+		$pdf->AddPage(); 
+		
+		// Add custom fonts in UTF-8
+		define('FPDF_FONTPATH', plugin_dir_path( __FILE__ ) . '/vendor/setasign/tfpdf/font/');
+		$pdf->AddFont('NotoSans-Regular','','NotoSans-Regular.ttf', true);
+		$pdf->AddFont('NotoSans-Bold','B','NotoSans-Bold.ttf', true);
+		$pdf->AddFont('NotoSans-Black','B','NotoSans-Black.ttf', true);
+		        
         // Create page
         $pdf->setSourceFile($this->template_file); 
         $tplIdx = $pdf->importPage(1); 
@@ -215,17 +197,17 @@ class BadgeBuilder {
 
         $name = array(
             'width' => 85,
-            'height' => 20,
+            'height' => 10,
             'color' => $black,
             'font_size' => 15,
             'caps' => true,
-            'text' => $this->first_name . " " . $this->last_name,
+            'text' => $this->first_name . "\n" . $this->last_name,
             'reset' => true,
             'align' => 'L',
         );
         $job = array(
             'width' => 85,
-            'height' => 20,
+            'height' => 8,
             'color' => $black,
             'font_size' => 10,
             'caps' => false,
@@ -235,7 +217,7 @@ class BadgeBuilder {
         );
         $company = array(
             'width' => 85,
-            'height' => 20,
+            'height' => 8,
             'color' => $dagora_green,
             'font_size' => 12,
             'caps' => true,
@@ -346,11 +328,11 @@ class BadgeBuilder {
                         $company['color'] = $luxury;
                         break;
                     
-                    case 'dagora_blue':
+                    case 'blue':
                         $company['color'] = $dagora_blue;
                         break;
 
-                    case 'dagora_green':
+                    case 'green':
                         $company['color'] = $dagora_green;
                         break;
                     
@@ -413,15 +395,15 @@ class BadgeBuilder {
 
 
     private function print_badge_text($opts, $x, $y, $pdf) {
-
-        $opts['text'] = $this->replace_mangled_chars($opts['text']);
-
+		
         if($opts['caps'] === true) {
-            $opts['text'] = strtoupper($opts['text']);
+            $opts['text'] = mb_strtoupper($opts['text'], 'UTF-8');
+			//$opts['text'] = strtoupper($opts['text']);
         }
-            
+        
         $pdf->SetTextColor($opts['color'][0],$opts['color'][1],$opts['color'][2]);
-        $pdf->SetFont('Helvetica', 'B', $opts['font_size']);
+		
+		$pdf->SetFont('NotoSans-Black', 'B', $opts['font_size']); /****** Change font here! ****/
 
         // Only usually reset both x and y for name field, i.e. first element of new page, else just x
         if($opts['reset'] === true) {
@@ -532,5 +514,3 @@ class FlxZipArchive extends ZipArchive {
        }
     } 
    }
-
-
