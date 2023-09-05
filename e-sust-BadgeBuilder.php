@@ -5,8 +5,10 @@
 $path = preg_replace('/wp-content.*$/','',__DIR__);
 include($path.'wp-load.php'); 
 
+define('FPDF_FONTPATH', plugin_dir_path( __FILE__ ) . '/vendor/setasign/fpdf/font/'); // Maybe not
 require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload.php';
 require_once plugin_dir_path( __FILE__ ) . '/vendor/setasign/fpdi/src/autoload.php';
+require_once plugin_dir_path( __FILE__ ) . '/vendor/setasign/tfpdf/tfpdf.php'; // New one
 
 
 use setasign\Fpdi\Fpdi;
@@ -171,11 +173,21 @@ class BadgeBuilder {
     private function rationalize_text($original_text) {
 
         // Very possibly overkill....
-        $fixed_text = $this->replace_mangled_chars($original_text);
-        $fixed_text = htmlspecialchars($fixed_text, ENT_QUOTES, 'UTF-8', false);
-        //$fixed_text = iconv('utf-8', 'cp1252', $html_text);
+        //$fixed_text = $this->replace_mangled_chars($original_text);
+       // $original_text = htmlentities($original_text, ENT_QUOTES, 'UTF-8', false);
+		//setlocale(LC_CTYPE, 'en_US');
+        //$original_text = iconv('utf-8', 'cp1252//TRANSLIT', $original_text);
+        //$original_text = htmlspecialchars($original_text, ENT_QUOTES, 'UTF-8', false);
+		//$original_text = iconv('UTF-8', 'windows-1252', html_entity_decode($original_text));
+		//$original_text = iconv('utf-8', 'cp1252', $original_text);
+		//$original_text = iconv('utf-8', 'iso-8859-2', $original_text);
+		//$original_text = iconv('UTF-8','iso-8859-2//TRANSLIT//IGNORE',$original_text); 
+		//$original_text = mb_convert_encoding($original_text, 'cp1252', 'UTF-8');
+		//$original_text = iconv('UTF-8', 'windows-1252', $original_text);
+		// $original_text = iconv('UTF-8', 'windows-1252', $original_text);
+		//$original_text = utf8_decode($original_text);		
 		
-        return $fixed_text;
+        return $original_text;
 
     }
 
@@ -193,12 +205,16 @@ class BadgeBuilder {
 	}
 	
 
+
     private function build_badge() {
 
         // Instantiate
-        $pdf = new FPDI(); 
-        $pdf->AddPage(); 
-        
+        //$pdf = new FPDI(); 
+        $pdf = new tFPDF();
+		$pdf->AddPage(); 
+		//$pdf->AddFont('NotoSans-Regular','','NotoSans-Regular.php');
+		$pdf->AddFont('NotoSans-Black','B','NotoSans-Black.ttf', true);
+		        
         // Create page
         $pdf->setSourceFile($this->template_file); 
         $tplIdx = $pdf->importPage(1); 
@@ -215,17 +231,17 @@ class BadgeBuilder {
 
         $name = array(
             'width' => 85,
-            'height' => 20,
+            'height' => 10,
             'color' => $black,
             'font_size' => 15,
             'caps' => true,
-            'text' => $this->first_name . " " . $this->last_name,
+            'text' => $this->first_name . "\n" . $this->last_name,
             'reset' => true,
             'align' => 'L',
         );
         $job = array(
             'width' => 85,
-            'height' => 20,
+            'height' => 8,
             'color' => $black,
             'font_size' => 10,
             'caps' => false,
@@ -235,7 +251,7 @@ class BadgeBuilder {
         );
         $company = array(
             'width' => 85,
-            'height' => 20,
+            'height' => 8,
             'color' => $dagora_green,
             'font_size' => 12,
             'caps' => true,
@@ -346,11 +362,11 @@ class BadgeBuilder {
                         $company['color'] = $luxury;
                         break;
                     
-                    case 'dagora_blue':
+                    case 'blue':
                         $company['color'] = $dagora_blue;
                         break;
 
-                    case 'dagora_green':
+                    case 'green':
                         $company['color'] = $dagora_green;
                         break;
                     
@@ -414,14 +430,14 @@ class BadgeBuilder {
 
     private function print_badge_text($opts, $x, $y, $pdf) {
 
-        $opts['text'] = $this->replace_mangled_chars($opts['text']);
-
+		//$opts['text'] = $this->replace_mangled_chars($opts['text']);
+		
         if($opts['caps'] === true) {
             $opts['text'] = strtoupper($opts['text']);
         }
-            
+        
         $pdf->SetTextColor($opts['color'][0],$opts['color'][1],$opts['color'][2]);
-        $pdf->SetFont('Helvetica', 'B', $opts['font_size']);
+		$pdf->SetFont('NotoSans-Black', 'B', $opts['font_size']);
 
         // Only usually reset both x and y for name field, i.e. first element of new page, else just x
         if($opts['reset'] === true) {
@@ -532,5 +548,3 @@ class FlxZipArchive extends ZipArchive {
        }
     } 
    }
-
-
