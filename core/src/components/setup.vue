@@ -9,10 +9,10 @@
                 <button @click="menuItem = 'apis'">APIs</button>
             </li>
             <li :class="{'active' : menuItem == 'venue'}">
-                <button @click="menuItem = 'venue'">Venue details</button>
+                <button @click="menuItem = 'venue'">Venue and tickets</button>
             </li>
-            <li :class="{'active' : menuItem == 'tickets'}">
-                <button @click="menuItem = 'tickets'">Tickets & badge</button>
+            <li :class="{'active' : menuItem == 'badges'}">
+                <button @click="menuItem = 'badges'">Badge design</button>
             </li>
         </ul>
     </div>
@@ -42,8 +42,6 @@
         <form id="apis" @submit.prevent="sendOptions('apis')">
             <label for="stripe_key">Stripe API key
             <input type="text" id="stripe_key" v-model="apis.alt_stripe_key"/></label>
-            <label for="webhook">Stripe webhook key
-            <input type="text" id="webhook" v-model="apis.stripe_webhook"/></label>
             <label for="hubspot-api">Hubspot API key
             <input type="text" id="hubspot-api" v-model="apis.hubspot_key"/></label>
             <div class="double">
@@ -58,7 +56,7 @@
     </div>
 
     <div v-show="menuItem == 'venue'" class="main-column">
-        <h3>Venue setup</h3>
+        <h3>Venue and tickets</h3>
         <form id="venue" @submit.prevent="sendOptions('venue')">
             <label for="venue_name">Name of venue
             <input type="text" id="venue_name" v-model="venue.venue_name"/></label>
@@ -72,21 +70,21 @@
             </div>
             <label for="venue_max">Maximum attendees permitted
             <input type="number" id="venue_max" v-model="venue.max_attendees"/></label>
-
+            <label for="ticket_price">Ticket price
+            <input type="number" id="ticket_price" v-model="venue.ticket_price"/></label>
             <input type="submit" value="Save edits"/>
         </form>
     </div>
 
-    <div v-show="menuItem == 'tickets'" class="main-column">
-        <h3>Tickets & badge setup</h3>
+    <div v-show="menuItem == 'badges'" class="main-column">
+        <h3>Badge layout</h3>
         <form id="badge" @submit.prevent="sendOptions('badges')">
             <label for="badge_template">Badge template
               <span v-if="badges.badge_template" style="font-weight:600; color:#7fc41c;">
                 Current: {{ badges.badge_template }}
               </span>
             <input type="file" id="badge_template" @change="badgeUpload()"/></label>
-            <label for="ticket_price">Ticket price
-            <input type="number" id="ticket_price" v-model="badges.ticket_price"/></label>
+
             <p>Text positioning badge page 1</p>
             <div class="double">
               <label for="p1x">X coordinate
@@ -227,7 +225,6 @@ export default {
       },
       apis: {
         alt_stripe_key: null,
-        stripe_webhook: null,
         event_tag: null,
         hubspot_list: null,
         hubspot_key: null,
@@ -238,14 +235,15 @@ export default {
         venue_city: null,
         venue_country: null,
         max_attendees: null,
+        ticket_price: null,
       },
       badges: {
         badge_template: null,
-        ticket_price: null,
         badge_x: null,
         badge_y: null,
         badge_x_p2: null,
         badge_y_p2: null,
+        badge_namebreak: null,
         badge_company_format: {
           color: null,
           fontsize: null,

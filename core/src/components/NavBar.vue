@@ -13,6 +13,11 @@
                   Event setup
                 </button></li>
 
+                <li :class="{active: onPage === 'desk'}">
+                  <button @click="($emit('pageSelect', 'desk'), selectThis('desk'))">
+                    Front desk
+                  </button></li>
+
                 <li :class="{active: onPage === 'registrations'}">
                   <button @click="($emit('pageSelect', 'registrations'),
                 selectThis('registrations'))">
@@ -43,6 +48,12 @@ export default {
     };
   },
   props: ['selected'],
+  mounted() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('section')) {
+      this.onPage = urlParams.get('section');
+    }
+  },
   methods: {
     selectThis(item) {
       this.onPage = item;

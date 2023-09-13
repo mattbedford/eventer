@@ -41,6 +41,7 @@ function run_database_set_up() {
 		hubspot_id text,
 		hs_synched tinyint(1) DEFAULT '0' NOT NULL,
 		welcome_email_sent tinyint(1) DEFAULT '0' NOT NULL,
+		arrived_at_event tinyint(1) DEFAULT '0' NOT NULL,
 		PRIMARY KEY  (id)
 	) $charset_collate;";
 

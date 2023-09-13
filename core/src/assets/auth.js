@@ -15,5 +15,6 @@ const config = {
   resendWelcome: `${rootUrl}/wp-json/core-vue/resend-welcome`,
   editBadges: `${rootUrl}/wp-json/core-vue/edit-badges`,
   printBadge: `${rootUrl}/wp-json/core-vue/print-badge`,
+  adHocRegistration: `${rootUrl}/wp-json/core-vue/ad-hoc-registration`,
 };
 export default config;

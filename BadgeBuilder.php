@@ -286,11 +286,11 @@ class BadgeBuilder {
                         $job['color'] = $luxury;
                         break;
                     
-                    case 'dagora_blue':
+                    case 'blue':
                         $job['color'] = $dagora_blue;
                         break;
 
-                    case 'dagora_green':
+                    case 'green':
                         $job['color'] = $dagora_green;
                         break;
                     
@@ -298,7 +298,6 @@ class BadgeBuilder {
                         $job['color'] = $job['color'];
                         break;
                 }
-
             } 
             if(!empty($this->job_format['fontsize'])) {
                 $job['font_size'] = $this->job_format['fontsize'];

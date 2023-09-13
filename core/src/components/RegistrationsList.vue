@@ -171,16 +171,16 @@
             </span></strong></li>
             <li>User interests: <strong><span v-html="sortLikes(oneToEdit)">
             </span></strong></li>
-            <li>Welcome email sent: <strong><span v-html="welcomedOrNot(oneToEdit)">
+            <!--<li>Welcome email sent: <strong><span v-html="welcomedOrNot(oneToEdit)">
             </span></strong>
               <a style="margin-left:10px;text-decoration:none;"
-              href="#" @click.prevent="resendWelcomeEmail()">
+              href="#" >
                 Send now
                 <span style="font-size:20px;position:relative;bottom:-1px;">
                   &#8594;
                 </span>
               </a>
-            </li>
+            </li>-->
           </ul>
 
           <div class="double">
