@@ -149,3 +149,27 @@ add_action('rest_api_init', function () {
         }
     ));
   });
+
+
+// Add a single registrant to db from the front-desk screen in Mission control: site_url()/wp-json/core-vue/ad-hoc-registration
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/ad-hoc-registration',array(
+        'methods'  => 'POST',
+        'callback' => 'add_ad_hoc_registration',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });
+
+
+// Check in a single visitor from front-desk screen in Mission control: site_url()/wp-json/core-vue/do_my_check_in
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/do_my_check_in',array(
+        'methods'  => 'POST',
+        'callback' => 'do_single_check_in',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });

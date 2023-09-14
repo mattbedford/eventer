@@ -55,6 +55,12 @@ class EventerRegistration {
         if(!isset($this->data['mobile']) || empty($this->data['mobile'])) {
             $this->data['mobile'] = null;
         }
+
+        if(!isset($this->data['checked_in']) || empty($this->data['checked_in'])) {
+            $checked_in = '0';
+        } else {
+            $checked_in = '1';
+        }
         
         $wpdb->insert( 
             $table_name, 
@@ -81,7 +87,8 @@ class EventerRegistration {
                 'coupon_code' => $this->data['coupon'],
                 'sign_up_date' => $sign_up_date,
                 'printed' => '0',
-                'hs_synched' => $this->hubspot_sync_status
+                'hs_synched' => $this->hubspot_sync_status,
+                'checked_in' => $checked_in
             ) 
         );
         
@@ -127,8 +134,8 @@ class EventerRegistration {
         $welcome = 0;
 
         if($block_mail === false) {
-            $welcome_mail = new MailFunction($user_data->email, $user_data->name, $user_data->surname, "welcome");
-            $welcome = 1;
+            //$welcome_mail = new MailFunction($user_data->email, $user_data->name, $user_data->surname, "welcome");
+            //$welcome = 1;
         }
 
         $wpdb->query( $wpdb->prepare( 

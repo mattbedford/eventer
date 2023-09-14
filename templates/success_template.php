@@ -136,7 +136,7 @@ function run_free_coupon_script($coupon_code) {
 	echo "<p>You have successfully signed up for " . get_option('event_name');  
 	echo " using coupon code <span class='code'>" . $coupon_code . "</span>";
 	echo " and we can't wait to see you there!</p>";
-	echo "<p>Soon (but please note, not immediately) you'll receive your email confirmation as well as any relevant updates.</p>";
+	echo "<h3>Important: Within 24 hours you'll receive your email confirmation.</h3>";
 	echo "Click <a href='/'>here</a> to continue exploring the themes and speakers of the big day!";
 }
 
@@ -253,6 +253,6 @@ function run_success_message() {
 	echo "<h1>Congrats!</h1></br>";
 	echo "<p>You have successfully purchased your ticket for " . get_option('event_name');  
 	echo ". We can't wait to see you at our event!</p>";
-	echo "<p>Soon (but please note, not immediately) you'll receive your email confirmation as well as any relevant updates.</p>";
+	echo "<h3>Important: Within 24 hours you'll receive your email confirmation.</h3>";
 	echo "Click <a href='/'>here</a> to continue exploring the themes and speakers of the big day!";
 }

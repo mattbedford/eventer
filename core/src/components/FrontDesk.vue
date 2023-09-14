@@ -17,19 +17,29 @@
                 <th>Surname</th>
                 <th>Company</th>
                 <th>Badge link</th>
-                <th>Attended</th>
+                <th>Checked in</th>
               </tr>
               <tr v-for="i in filteredRows" :key="i.id">
                 <td v-html="i.name"></td>
                 <td v-html="i.surname"></td>
                 <td v-html="i.company"></td>
-                <td><a :href="i.badge_link" target="_blank">Badge</a></td>
+                <td>
+                  <a v-if="i.badge_link" :href="i.badge_link" target="_blank">Badge</a>
+                  <button class="ad-hoc-badge-printer" v-else
+                  @click="printBadge(i.id)">Print badge &#8594;</button>
+                </td>
                 <td>
                   <label :for="i.id">
                     <input type="checkbox"
+                      v-if="i.checked_in === '1'"
                       :id="i.id"
-                      :checked="i.attended"
-                      @change="updateAttendance(i.id)"
+                      checked="checked"
+                      @change="updateAttendance(i.id, 'remove')"
+                    />
+                    <input type="checkbox"
+                      v-else
+                      :id="i.id"
+                      @change="updateAttendance(i.id, 'add')"
                     />
                   </label>
                 </td>
@@ -46,15 +56,10 @@
             <label for="lname">Last name (Required)
               <input type="text" id="lname" v-model="newreg.surname"/></label>
           </div>
-
-          <div>
+          <div class="company_type_wrapper double">
             <label for="company">Company (Required)
               <input type="text" id="company" v-model="newreg.company"/></label>
-          </div>
-
-          <div class="company_type_wrapper">
-                <p>Company type</p>
-                <label for="company_type">
+                <label for="company_type">Company type (Required)
                   <select name="company_type" id="company_type" v-model="newreg.my_company_is">
                       <option value="Brand, Retailer, Manufacturer or Online Shop">
                         Brand, Retailer, Manufacturer or Online Shop</option>
@@ -72,14 +77,17 @@
                   </select>
                 </label>
             </div>
-            <div>
-              <label for="role">Role
+            <div class="double">
+              <label for="role">Role (Required)
                 <input type="text" id="role" v-model="newreg.role"/></label>
-            </div>
-            <div>
-              <label for="email">Email address (Required)
+                <label for="email">Email address (Required)
                 <input type="email" id="email" v-model="newreg.email"/></label>
-                <button class="form-button" style="margin-top:20px;">Submit</button>
+            </div>
+            <div class="double">
+              <label for="phone">Mobile phone (Required)
+              <input type="tel" id="phone" v-model="newreg.mobile"/></label>
+                <button class="form-button" style="margin-top:20px;"
+                :class="{ 'ready' : this.ready}">Submit</button>
             </div>
           </form>
           </div>
@@ -98,6 +106,7 @@ export default {
       announce: null,
       registrationsDesk: [],
       filter: '',
+      ready: false,
       newreg: {
         name: '',
         surname: '',
@@ -105,6 +114,7 @@ export default {
         my_company_is: '',
         role: '',
         email: '',
+        mobile: '',
       },
     };
   },
@@ -129,8 +139,22 @@ export default {
     },
   },
   methods: {
-    async updateAttendance(id) {
-      console.log(id);
+    async updateAttendance(id, cmd) {
+      const url = '/wp-json/core-vue/do_my_check_in';
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      const data = JSON.stringify({ id, cmd });
+      fetch(url, { method: 'POST', headers, body: data })
+        .then((result) => result.json())
+        .then((result) => {
+          this.announce = result;
+          if (this.announce[0] !== 'Success') {
+            this.announce = ['Something went wrong', 'Please try again'];
+          }
+        });
     },
     async grabAllRegistrations() {
       this.registrationsList = [];
@@ -142,12 +166,12 @@ export default {
       };
       fetch(url, { method: 'GET', headers })
         .then((result) => result.json())
-        .then((result) => { this.registrationsDesk = result; });
+        .then((result) => { this.registrationsDesk = result.reverse(); });
     },
     async adHocRegistration() {
       if (!this.newreg.name || !this.newreg.surname || !this.newreg.email
-      || !this.newreg.company) {
-        this.announce = ['Hold it right there...', 'You need to supply all required fields (name, surname, company, email.)'];
+      || !this.newreg.company || !this.newreg.mobile) {
+        this.announce = ['Hold it right there...', 'You need to supply all required fields (name, surname, company, email, role and phone)'];
         return;
       }
       const data = JSON.stringify(this.newreg);
@@ -160,11 +184,57 @@ export default {
       fetch(url, { method: 'POST', headers, body: data })
         .then(this.oneToEdit = null)
         .then((result) => result.json())
-        .then((result) => { this.announce = result; });
+        .then((result) => {
+          this.announce = result;
+          if (this.announce[0] === 'Success') {
+            this.resetForm();
+          }
+        });
     },
     killMessage() {
       this.grabAllRegistrations();
       this.announce = null;
+    },
+    resetForm() {
+      this.newreg = {
+        name: '',
+        surname: '',
+        company: '',
+        my_company_is: '',
+        role: '',
+        email: '',
+      };
+      this.ready = false;
+    },
+    async printBadge(id) {
+      const url = auth.printBadge;
+      const headers = {
+        credentials: 'same-origin',
+        'Content-Type': 'application/json',
+        'X-WP-Nonce': this.nonce,
+      };
+      const data = JSON.stringify({ ids: id });
+      fetch(url, { method: 'POST', headers, body: data })
+        .then((result) => result.json())
+        .then((result) => {
+          this.announce = result;
+          if (this.announce[0] === 'Success') {
+            this.grabAllRegistrations();
+          }
+        });
+    },
+  },
+  watch: {
+    newreg: {
+      handler() {
+        if (this.newreg.name && this.newreg.surname && this.newreg.email
+        && this.newreg.company) {
+          this.ready = true;
+        } else {
+          this.ready = false;
+        }
+      },
+      deep: true,
     },
   },
 };

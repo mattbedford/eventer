@@ -623,7 +623,7 @@ function resend_welcome_mail($new_data) {
     if(!isset($name) || empty($name)) $name = "Friend";
     if(!isset($surname) || empty($surname)) $surname = "";
 
-    $welcome_mail = new MailFunction($mail, $name, $surname, "welcome");
+    //$welcome_mail = new MailFunction($mail, $name, $surname, "welcome");
 
     global $wpdb; 
     $my_table = $wpdb->prefix . 'registrations';
@@ -682,6 +682,7 @@ function print_array_of_badges($raw_data) {
                 'registration_id' => $badge->id, // Single id of badge item (i.e. registration ID) with issues
                 'errors' => implode(' -> ', $badge->errors), // All errors for this badge item
             );
+            return array("Error", "Please try again. There were errors with the following: " . json_encode($errors));
         }
 
         $return_files = $output[0];
@@ -694,5 +695,108 @@ function print_array_of_badges($raw_data) {
     }
 
     return array("Success", $message);
+
+}
+
+
+
+function add_ad_hoc_registration($raw_data) {
+    // STILL NEEDS WORK!
+    $data = $raw_data->get_json_params();
+
+    $data['title'] = null;
+    $data['mobile_phone'] = '000000000';
+    $data['website'] = 'https://www.unknown.com';
+    $data['address'] = 'Not requested';
+    $data['postcode'] = 'Not requested';
+    $data['city'] = 'Not requested';
+    $data['country'] = 'Not requested';
+    $data['mkt'] = true;
+    $data['interests'] = 'Not requested';
+    $data['paid'] = 0;
+    $data['payment_status'] = 'Manual data entry';
+    $data['sign_up_date'] = date('Y-m-d');
+    $data['printed'] = 0;
+    $data['badge_link'] = null;
+    $data['hubspot_id'] = null;
+    $data['hs_synched'] = 0;
+    $data['welcome_email_sent'] = 0;
+    $data['checked_in'] = "1";
+
+    // Hacky stuff that'll need to get fixed sooner or later....
+    if(isset($data['name'])) $data['fname'] = $data['name'];
+    if(isset($data['surname'])) $data['lname'] = $data['surname'];
+
+    require plugin_dir_path( __FILE__ ) . '/checkout-scripts/EventerRegistrations.php';
+    $create = new EventerRegistration($data);
+    
+    // If registration worked, we can confirm user
+    if(empty($create->registration_id)) {
+        return array("Error", "Registration was not created. We don't know any more than that, sorry.");
+    }
+    $create->confirmFreeUser(true);
+
+    // If user confirmation worked, we can print badge
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/BadgeBuilder.php';
+    $badge = new BadgeBuilder($create->registration_id, true);
+
+    if(!empty($badge->errors)) {
+        $errors[] = array(
+            'registration_id' => $badge->id, // Single id of badge item (i.e. registration ID) with issues
+            'errors' => implode(' -> ', $badge->errors), // All errors for this badge item
+        );   
+        return array("Error", "We had trouble creating user and printing badge. Please check following: " . json_encode($errors));
+    }
+
+    $output[] = " <a href='$badge->badge_output' target='_blank' download>$badge->badge_output</a>"; // Single url of file
+
+    $return_files = $output[0];
+    $message = "User registered and badge is available for printing: " . $return_files;   
+
+    $val = array("Success", $message);
+    return $val;
+
+}
+
+
+function do_single_check_in($raw_data) {
+
+    $data = $raw_data->get_json_params();
+
+    $id = $data['id'];
+    $command = $data['cmd'];
+
+    if($command === 'add') {
+
+        global $wpdb;
+        $my_table = $wpdb->prefix . 'registrations';
+        $wpdb->query( $wpdb->prepare( 
+            "
+                UPDATE $my_table 
+                SET checked_in = 1
+                WHERE id = %d
+            ",
+            intval($id)
+        ) );
+
+        return array("Success", "User " . $id . " was successfully checked in.");
+    }
+
+    if($command = 'remove') {
+        global $wpdb;
+        $my_table = $wpdb->prefix . 'registrations';
+        $wpdb->query( $wpdb->prepare( 
+            "
+                UPDATE $my_table 
+                SET checked_in = 0
+                WHERE id = %d
+            ",
+            intval($id)
+        ) );
+
+        return array("Success", "User " . $id . " was successfully checked out.");
+    }
+
+    
 
 }
