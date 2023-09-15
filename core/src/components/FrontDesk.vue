@@ -84,8 +84,8 @@
                 <input type="email" id="email" v-model="newreg.email"/></label>
             </div>
             <div class="double">
-              <label for="phone">Mobile phone (Required)
-              <input type="tel" id="phone" v-model="newreg.mobile"/></label>
+              <label for="phone">Office phone (Required)
+              <input type="tel" id="phone" v-model="newreg.office"/></label>
                 <button class="form-button" style="margin-top:20px;"
                 :class="{ 'ready' : this.ready}">Submit</button>
             </div>
@@ -114,7 +114,7 @@ export default {
         my_company_is: '',
         role: '',
         email: '',
-        mobile: '',
+        office: '',
       },
     };
   },
@@ -170,10 +170,11 @@ export default {
     },
     async adHocRegistration() {
       if (!this.newreg.name || !this.newreg.surname || !this.newreg.email
-      || !this.newreg.company || !this.newreg.mobile) {
+      || !this.newreg.company || !this.newreg.office) {
         this.announce = ['Hold it right there...', 'You need to supply all required fields (name, surname, company, email, role and phone)'];
         return;
       }
+      this.ready = false;
       const data = JSON.stringify(this.newreg);
       const url = auth.adHocRegistration;
       const headers = {

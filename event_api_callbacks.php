@@ -701,11 +701,11 @@ function print_array_of_badges($raw_data) {
 
 
 function add_ad_hoc_registration($raw_data) {
-    // STILL NEEDS WORK!
+
     $data = $raw_data->get_json_params();
 
     $data['title'] = null;
-    $data['mobile_phone'] = '000000000';
+    if(isset($data['office'])) $data['office_phone'] = $data['office'];
     $data['website'] = 'https://www.unknown.com';
     $data['address'] = 'Not requested';
     $data['postcode'] = 'Not requested';
