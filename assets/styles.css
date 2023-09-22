@@ -557,3 +557,39 @@ tr.abandoned td {
 .my-front-desk .company_type_wrapper select {
     width:100%;
  }
+ .ord-arr {
+    display: inline-flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transform: rotate(90deg);
+    background: #af2aff;
+    margin-left: 5px;
+    padding: 3px;
+    border-radius: 20px;
+    width: 14px;
+    height: 14px;
+    cursor:pointer;
+ }
+ .check-icon {
+    position:relative;
+    width:20px;
+    margin-bottom:-5px;
+ }
+ .check-button {
+    width:85px !important;
+    max-width:unset;
+ }
+ .check-button svg {
+    width:20px;
+ }
+ .last-col {
+    display:flex;
+ }
+ .check-button.print {
+    width:70px;
+    margin-left:15px;
+    max-width:70px !important;
+    background:#7fc41c !important;
+ }

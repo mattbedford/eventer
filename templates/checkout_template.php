@@ -355,7 +355,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
 			    <input type="checkbox" name="mkt" id=mkt required>
                 <label for="mkt"><span class="req">*</span> I consent to my data being used for marketing communication and updates on initiatives</label>
             </div>
-		    <p>You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our Privacy Policy. By clicking submit below, you consent to allow Dagorà and its strategic partners Netcomm Suisse and Loomish SA to store and process the personal information submitted above to provide you the content requested.
+		    <p>You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our <a target="_blank" href="https://dagora.ch/data-protection-policy/">Privacy Policy</a>. By clicking submit below, you consent to allow Dagorà and its strategic partners Netcomm Suisse and Loomish SA to store and process the personal information submitted above to provide you the content requested.
 		    </p>
 	    </div>
     </div>

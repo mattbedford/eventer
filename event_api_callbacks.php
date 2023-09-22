@@ -26,11 +26,19 @@ function all_event_options() {
         "badge_y",
         "badge_x_p2",
         "badge_y_p2",
+        "badge_company_format",
+        "badge_job_format",
+        "badge_name_format",
     );
     $return_array = array();
 
     foreach($all_options as $single_opt) {
         $existing_option = get_option($single_opt);
+        if($single_opt === 'badge_company_format' ||
+        $single_opt === 'badge_job_format' ||
+        $single_opt === 'badge_name_format') {
+            $existing_option = unserialize($existing_option);
+        }
         if(!empty($existing_option) && $existing_option !== FALSE) {
             $return_array[] = array($single_opt, $existing_option);
         }
@@ -66,15 +74,29 @@ function set_the_options($args) {
             "badge_y",
             "badge_x_p2",
             "badge_y_p2",
+            "badge_company_format",
+            "badge_job_format",
+            "badge_name_format",
     );
     $errors = array();
 
     foreach($data as $key => $val) {
         $new_option = strval($key);
-        $new_value = stripslashes(strip_tags(trim($val)));
+        if(is_array($val)) {
+            $arrval = array();
+            foreach($val as $subkey => $subval) {
+                if(null == $subval) continue;
+                $subkey = stripslashes(strip_tags(trim($subkey)));
+                $subval = stripslashes(strip_tags(trim($subval)));
+                $arrval[$subkey] = $subval;
+            }
+            $new_value = serialize($arrval);
+        } else {
+            $new_value = stripslashes(strip_tags(trim($val)));
+        }
 
         // Make sure options are legit
-        if(!in_array($new_option, $permitted)) return "Sorry, you submitted a forbidden option";
+        if(!in_array($new_option, $permitted)) return array("Error", "Sorry, you submitted a forbidden option");
 
         // Catch any empty fileds in form submission
         if($new_value == null || empty($new_value)) continue;
@@ -118,8 +140,7 @@ function all_event_registrations() {
 function edit_registration($data) {
     $x = $data->get_json_params();
     $cleaned_data = array_map('sanitize_it', $x);
-    
-    $reg_id = $cleaned_data['id'];
+    if(isset($cleaned_data['id'])) $reg_id = $cleaned_data['id'];
     $reg_action = $cleaned_data['command'];
 
     // Based on command given, we either channel the request into one of 3 different actions: to create, edit, or delete a registration.
@@ -145,53 +166,20 @@ function edit_registration($data) {
 }
 
 function create_new_registration($data) {
-    global $wpdb;
-	$table_name = $wpdb->prefix . 'registrations';
+    // Ghetto fix for first name
+    $data['mkt'] = true;
+    $data['postcode'] = "";
+    if(isset($data['name'])) $data['fname'] = $data['name'];
+    if(isset($data['surname'])) $data['lname'] = $data['surname'];
+    if(isset($data['street_address'])) $data['address'] = $data['street_address'];
+    if(isset($data['office_phone'])) $data['office'] = $data['office_phone'];
+    if(isset($data['mobile_phone'])) $data['mobile'] = $data['mobile_phone'];
 
-	$email = $data['email'] ? $data['email'] : "unknown";
-	$name = $data['name'] ? $data['name'] : "unknown";
-	$surname = $data['surname'] ? $data['surname'] : "unknown";
-	$company = $data['company'] ? $data['company'] : "unknown";
-    $company_is = $data['my_company_is'] ? $data['my_company_is'] : "unknown";
-	$role = $data['role'] ? $data['role'] : "unknown";
-    $city = $data['city'] ? $data['city'] : "unknown";
-    $country = $data['country'] ? $data['country'] : "unknown";
-    $mobile_phone = $data['mobile_phone'] ? $data['mobile_phone'] : "unknown";
-    $office_phone = $data['office_phone'] ? $data['office_phone'] : "unknown";
-    $postcode = $data['postcode'] ? $data['postcode'] : "unknown";
-    $street_address = $data['street_address'] ? $data['street_address'] : "unknown";
-    $website = $data['website'] ? $data['website'] : "https://unknown.com";
-    $coupon_code = "none";
-    $sign_up_date = date("Y-m-d H:i:s");
-    $t_and_c = "1";
-    $paid = "0";
-    $payment_status = "Free entry";
-		
-	$create = $wpdb->insert( 
-		$table_name, 
-		array(  
-            'name' => $name, 
-            'surname' => $surname, 
-            'email' => $email, 
-            'company' => $company, 
-            'my_company_is' => $company_is,
-            'role' => $role, 
-            'city' => $city, 
-            'country' => $country, 
-            'mobile_phone' => $mobile_phone, 
-            'office_phone' => $office_phone, 
-            'postcode' => $postcode,
-            'street_address' => $street_address,
-            'website' => $website,
-            'sign_up_date' => $sign_up_date,
-            't_and_c' => $t_and_c,
-            'coupon_code' => $coupon_code,
-            'paid' => $paid,
-            'payment_status' => $payment_status
-
-        ) );
-
-    if($create !== false) {
+    require plugin_dir_path( __FILE__ ) . '/checkout-scripts/EventerRegistrations.php';
+    $create = new EventerRegistration($data);
+    
+    if($create->registration_id !== false) {
+        $create->confirmFreeUser(true);
 		$val = array("Success", "New registration successfully created");
 		return $val;
 	}
@@ -233,6 +221,7 @@ function edit_existing_registration($data) {
             office_phone = %s, 
             postcode = %s,
             street_address = %s,
+			hs_synched = 0,
             website = %s
 			WHERE id = %d
 		",
@@ -492,11 +481,21 @@ function delete_existing_coupon($id_to_delete) {
 
 function hubspot_sync($new_data) {
     $data = $new_data->get_json_params();
+	
+	// Ghetto fix again. Should probably be its own function...
+	$data['mkt'] = true;
+    if(!isset($data['postcode'])) $data['postcode'] = "";
+    if(isset($data['name'])) $data['fname'] = $data['name'];
+    if(isset($data['surname'])) $data['lname'] = $data['surname'];
+    if(isset($data['street_address'])) $data['address'] = $data['street_address'];
+    if(isset($data['office_phone'])) $data['office'] = $data['office_phone'];
+    if(isset($data['mobile_phone'])) $data['mobile'] = $data['mobile_phone'];
+	
 
-    require_once plugin_dir_path( __DIR__ ) . 'eventer/registrations/add_registrant_to_hubspot.php';
-    $res = set_up_and_send_new_contact($data);
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/checkout-scripts/HubspotTool.php';
+    $res = HubspotTool::createNewHubspotPerson($data);
 
-    if($res[0] == "Success") {
+    if($res !== null) {
         global $wpdb;
 	    $my_table = $wpdb->prefix . 'registrations';
 	    $id = intval($data['id']);
@@ -538,14 +537,19 @@ function hubspot_sync($new_data) {
         ) );
     }
     
-    return $res;
+    if($chk !== false) {
+		$val = array("Success", "User successfully synced with Hubspot.");
+		return $val;
+	}
+	$val = array("Uh oh", "Sync with Hubspot failed. We don't know any more than that, sorry.");
+    return $val;
     die();
 }
 
 function all_sync() {
-    require_once plugin_dir_path( __DIR__ ) . 'eventer/registrations/sync_all_registrations_with_hubspot.php';
-    $res = get_missing_registrations_from_hs();
-    return $res;
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/checkout-scripts/RegistrationsSync.php';
+    $res = new RegistrationsSync;
+    return array("Success", "Hubspot sync successfully carried out.");
     die();
 }
 
@@ -608,4 +612,196 @@ function do_speaker_codes() {
         $num = $results['good'] + $results['bad'];
         return array('Results', 'We attempted to push a total of ' . $num . ' speakers into Hubspot.' . $results['good'] . ' were successful.');
         die();
+}
+
+function resend_welcome_mail($new_data) {
+    $data = $new_data->get_json_params();
+    $mail = $data['email'];
+    $name = $data['name'];
+    $surname = $data['surname'];
+    if(!isset($mail) || empty($mail)) return array("Error", "No email address was provided for this registered user.");
+    if(!isset($name) || empty($name)) $name = "Friend";
+    if(!isset($surname) || empty($surname)) $surname = "";
+
+    //$welcome_mail = new MailFunction($mail, $name, $surname, "welcome");
+
+    global $wpdb; 
+    $my_table = $wpdb->prefix . 'registrations';
+    $wpdb->query( $wpdb->prepare( 
+        "
+            UPDATE $my_table 
+            SET welcome_email_sent = 1
+            WHERE id = %d
+        ",
+        intval($data['id'])
+    ) );
+
+    return array("Success", "Welcome email correctly sent to user " . $mail);
+    die();
+}
+
+// NEW VERSION 6
+function print_array_of_badges($raw_data) {
+
+    $data = $raw_data->get_json_params();
+
+	if(!is_array($data['ids'])) {
+    	$ids[] = $data['ids'];
+	} else {
+		$ids = $data['ids'];
+	}
+	
+    if(empty($ids)) return array("Error", "No registration IDs were provided.");
+
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/BadgeBuilder.php';
+
+    $output = array();
+    $errors = array();
+
+    if(count($ids) > 1) {
+
+        BadgeBuilder::kill_the_old_badges();
+        BadgeBuilder::make_the_badge_folder();
+
+        foreach($ids as $single_id) {
+            $badge = new BadgeBuilder($single_id, false); //second var denotes whether we're printing a single badge or not
+            $output[] = $badge->badge_output; // Single url of file
+            if(!empty($badge->errors)) {
+                $errors[] = array(
+                    'id' => $badge->id, // Single id of badge item (i.e. registration ID) with issues
+                    'errors' => implode(' -> ', $badge->errors), // All errors for this badge item
+                );
+            }
+        }
+
+        $return_files = BadgeBuilder::zipOutput();
+        $link_string = " <a href='$return_files' target='_blank' download>$return_files</a>";
+        $message = "All badges were successfully generated and are available for download here:" . $link_string;
+
+    } else {
+
+        $badge = new BadgeBuilder($ids[0], true);
+        $output[] = " <a href='$badge->badge_output' target='_blank' download>$badge->badge_output</a>"; // Single url of file
+        if(!empty($badge->errors)) {
+            $errors[] = array(
+                'registration_id' => $badge->id, // Single id of badge item (i.e. registration ID) with issues
+                'errors' => implode(' -> ', $badge->errors), // All errors for this badge item
+            );
+            return array("Error", "Please try again. There were errors with the following: " . json_encode($errors));
+        }
+
+        $return_files = $output[0];
+        $message = "Your badge was successfully generated and is available for download here:" . $return_files;    
+
+    }
+
+    if(!empty($errors)) {
+        return array("Error", "Please try again. There were errors with the following: " . json_encode($errors));
+    }
+
+    return array("Success", $message);
+
+}
+
+
+
+function add_ad_hoc_registration($raw_data) {
+
+    $data = $raw_data->get_json_params();
+
+    $data['title'] = null;
+    if(isset($data['office'])) $data['office_phone'] = $data['office'];
+    $data['website'] = 'https://www.unknown.com';
+    $data['address'] = 'Not requested';
+    $data['postcode'] = 'Not requested';
+    $data['city'] = 'Not requested';
+    $data['country'] = 'Not requested';
+    $data['mkt'] = true;
+    $data['interests'] = 'Not requested';
+    $data['paid'] = 0;
+    $data['payment_status'] = 'Manual data entry';
+    $data['sign_up_date'] = date('Y-m-d');
+    $data['printed'] = 0;
+    $data['badge_link'] = null;
+    $data['hubspot_id'] = null;
+    $data['hs_synched'] = 0;
+    $data['welcome_email_sent'] = 0;
+    $data['checked_in'] = "1";
+
+    // Hacky stuff that'll need to get fixed sooner or later....
+    if(isset($data['name'])) $data['fname'] = $data['name'];
+    if(isset($data['surname'])) $data['lname'] = $data['surname'];
+
+    require plugin_dir_path( __FILE__ ) . '/checkout-scripts/EventerRegistrations.php';
+    $create = new EventerRegistration($data);
+    
+    // If registration worked, we can confirm user
+    if(empty($create->registration_id)) {
+        return array("Error", "Registration was not created. We don't know any more than that, sorry.");
+    }
+    $create->confirmFreeUser(true);
+
+    // If user confirmation worked, we can print badge
+    require_once plugin_dir_path( __DIR__ ) . 'eventer/BadgeBuilder.php';
+    $badge = new BadgeBuilder($create->registration_id, true);
+
+    if(!empty($badge->errors)) {
+        $errors[] = array(
+            'registration_id' => $badge->id, // Single id of badge item (i.e. registration ID) with issues
+            'errors' => implode(' -> ', $badge->errors), // All errors for this badge item
+        );   
+        return array("Error", "We had trouble creating user and printing badge. Please check following: " . json_encode($errors));
+    }
+
+    $output[] = " <a href='$badge->badge_output' target='_blank' download>$badge->badge_output</a>"; // Single url of file
+
+    $return_files = $output[0];
+    $message = "User registered and badge is available for printing: " . $return_files;   
+
+    $val = array("Success", $message);
+    return $val;
+
+}
+
+
+function do_single_check_in($raw_data) {
+
+    $data = $raw_data->get_json_params();
+
+    $id = $data['id'];
+    $command = $data['cmd'];
+
+    if($command === 'add') {
+
+        global $wpdb;
+        $my_table = $wpdb->prefix . 'registrations';
+        $wpdb->query( $wpdb->prepare( 
+            "
+                UPDATE $my_table 
+                SET checked_in = 1
+                WHERE id = %d
+            ",
+            intval($id)
+        ) );
+
+        return array("Success", "User " . $id . " was successfully checked in.");
+    }
+
+    if($command = 'remove') {
+        global $wpdb;
+        $my_table = $wpdb->prefix . 'registrations';
+        $wpdb->query( $wpdb->prepare( 
+            "
+                UPDATE $my_table 
+                SET checked_in = 0
+                WHERE id = %d
+            ",
+            intval($id)
+        ) );
+
+        return array("Success", "User " . $id . " was successfully checked out.");
+    }
+
+    
+
 }

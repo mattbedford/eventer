@@ -4,47 +4,52 @@
         <div class="my-front-desk">
           <div class="registrations-list">
             <h3>Current registrations</h3>
-            <div class="text-filter">
-                <label for="textfilter">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M221.09 64a157.09 157.09 0 1 0 157.09 157.09A157.1 157.1 0 0 0 221.09 64z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M338.29 338.29 448 448"/></svg>
-                  <input name="textfilter" type="text" placeholder="Filter/Search"
-                  v-model="filter" />
-                </label>
-              </div>
-            <table>
-              <tr>
-                <th>Name</th>
-                <th>Surname</th>
-                <th>Company</th>
-                <th>Badge link</th>
-                <th>Checked in</th>
-              </tr>
-              <tr v-for="i in filteredRows" :key="i.id">
-                <td v-html="i.name"></td>
-                <td v-html="i.surname"></td>
-                <td v-html="i.company"></td>
-                <td>
-                  <a v-if="i.badge_link" :href="i.badge_link" target="_blank">Badge</a>
-                  <button class="ad-hoc-badge-printer" v-else
-                  @click="printBadge(i.id)">Print badge &#8594;</button>
-                </td>
-                <td>
-                  <label :for="i.id">
-                    <input type="checkbox"
-                      v-if="i.checked_in === '1'"
-                      :id="i.id"
-                      checked="checked"
-                      @change="updateAttendance(i.id, 'remove')"
-                    />
-                    <input type="checkbox"
-                      v-else
-                      :id="i.id"
-                      @change="updateAttendance(i.id, 'add')"
-                    />
-                  </label>
-                </td>
-              </tr>
-            </table>
+              <vue-good-table
+              :columns="columns"
+              :rows="registrationsDesk"
+              theme="black-rhino"
+              :search-options="{
+                enabled: true
+              }"
+              :pagination-options="{
+                  enabled: true,
+                  perPage: 50,
+                  position: 'bottom',
+              }"
+              >
+              <template slot="table-row" slot-scope="props">
+                <div v-if="props.column.field === 'checkin'" class="last-col">
+                  <button
+                    v-if="props.row.checked_in === '0'"
+                    style="display:flex;
+                      width:70px;
+                      align-items:center;
+                      justify-content:space-between;
+                      padding-right:10px;"
+                      class="check-button"
+                      @click="updateAttendance(props.row.id, 'add')">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176 217.6 336 160 272"/></svg>
+                     Check in
+                  </button>
+                  <span v-else>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="check-icon ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176 217.6 336 160 272"/></svg>
+                    Guest checked in
+                  </span>
+                  <button
+                    v-if="props.row.printed === '0'"
+                    style="display:flex;
+                      width:70px;
+                      align-items:center;
+                      justify-content:space-between;
+                      padding-right:10px;"
+                      class="check-button print"
+                      @click="printBadge(props.row.id)">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="check-icon ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" d="M384 368h24a40.12 40.12 0 0 0 40-40V168a40.12 40.12 0 0 0-40-40H104a40.12 40.12 0 0 0-40 40v160a40.12 40.12 0 0 0 40 40h24"/><rect width="256" height="208" x="128" y="240" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" rx="24.32" ry="24.32"/><path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32" d="M384 128v-24a40.12 40.12 0 0 0-40-40H168a40.12 40.12 0 0 0-40 40v24"/><circle cx="392" cy="184" r="24"/></svg>
+                      Print
+                  </button>
+                </div>
+              </template>
+            </vue-good-table>
           </div>
           <div class="ad-hoc-registration-form">
             <form @submit.prevent="adHocRegistration()">
@@ -96,14 +101,24 @@
 </template>
 
 <script>
+/* eslint-disable */
 import auth from '@/assets/auth';
 import MessageAnnounce from './MessageAnnounce.vue';
+import 'vue-good-table/dist/vue-good-table.css';
+import { VueGoodTable } from 'vue-good-table';
 
 export default {
 
+  components: {
+    VueGoodTable, MessageAnnounce,
+  },
   data() {
     return {
       announce: null,
+      sorts: {
+        direction: 'desc',
+        column: null,
+      },
       registrationsDesk: [],
       filter: '',
       ready: false,
@@ -116,29 +131,47 @@ export default {
         email: '',
         office: '',
       },
+      columns: [
+        {
+          label: 'Name',
+          field: 'name',
+        },
+        {
+          label: 'Surname',
+          field: 'surname',
+        },
+        {
+          label: 'Company',
+          field: 'company',
+        },
+        {
+          label: 'Badge link',
+          field: this.checkPrintStatus,
+          html: true,
+        },
+        {
+          label: 'Checked in',
+          field: 'checkin',
+        },
+      ],
     };
-  },
-  components: {
-    MessageAnnounce,
   },
   mounted() {
     this.grabAllRegistrations();
   },
-  computed: {
-    filteredRows() {
-      return this.registrationsDesk.filter((row) => {
-        const company = row.company.toString().toLowerCase();
-        const name = row.name.toLowerCase();
-        const surname = row.surname.toLowerCase();
-        const searchTerm = this.filter.toLowerCase();
-
-        return company.includes(searchTerm)
-      || name.includes(searchTerm)
-      || surname.includes(searchTerm);
-      });
-    },
-  },
   methods: {
+    isCheckedIn(rowObj) {
+      return rowObj.checked_in;
+    },
+    checkPrintStatus(rowObj) {
+      if (rowObj.badge_link && rowObj.printed === '1') {
+        return `<a href='${rowObj.badge_link}' target='_blank'>View</a>`;
+      }
+      if (!rowObj.badge_link && rowObj.printed === '1') {
+        return `See <a href='${document.location.origin}/wp-content/plugins/eventer/badges/all_badges.zip' target='_blank'>zip folder</a> of all badges`;
+      }
+      return '';
+    },
     async updateAttendance(id, cmd) {
       const url = '/wp-json/core-vue/do_my_check_in';
       const headers = {

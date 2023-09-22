@@ -27,7 +27,7 @@
             <label for="date">Event date
             <input type="date" id="date" v-model="globals.event_date"/></label>
             <div class="double">
-                <label for="start">Kick-off time
+                <label for="start">Check in time
                 <input type="time" id="start" v-model="globals.event_start"/></label>
                 <label for="end">Event end time
                 <input type="time" id="end" v-model="globals.event_end"/></label>
