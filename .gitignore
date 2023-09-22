@@ -2,3 +2,4 @@
 checkout-scripts/registration-log.txt
 /badges/
 /core/dist/
+*.mtx
