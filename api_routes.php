@@ -173,3 +173,14 @@ add_action('rest_api_init', function () {
         }
     ));
   });
+
+// Reset all "badge printed" flags to zero: site_url()/wp-json/core-vue/wipe_printed_list
+add_action('rest_api_init', function () {
+    register_rest_route( 'core-vue', '/wipe_printed_list',array(
+        'methods'  => 'GET',
+        'callback' => 'wipe_badge_printed_list',
+        'permission_callback' => function() {
+            return current_user_can('edit_posts');
+        }
+    ));
+  });

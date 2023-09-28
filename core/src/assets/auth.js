@@ -16,5 +16,6 @@ const config = {
   editBadges: `${rootUrl}/wp-json/core-vue/edit-badges`,
   printBadge: `${rootUrl}/wp-json/core-vue/print-badge`,
   adHocRegistration: `${rootUrl}/wp-json/core-vue/ad-hoc-registration`,
+  resetBadges: `${rootUrl}/wp-json/core-vue/wipe_printed_list`,
 };
 export default config;

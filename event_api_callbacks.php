@@ -802,6 +802,24 @@ function do_single_check_in($raw_data) {
         return array("Success", "User " . $id . " was successfully checked out.");
     }
 
-    
+}
+
+
+function wipe_badge_printed_list() {
+
+    $user_id = get_current_user_id();
+    if(!current_user_can('edit_posts')) return array("error", "You do not have permission to complete this task.");
+
+    global $wpdb;
+    $my_table = $wpdb->prefix . 'registrations';
+    $wpdb->query( $wpdb->prepare( 
+        "
+                    UPDATE $my_table 
+                    SET printed = 0,
+                    badge_link = null
+                ",
+    ) );
+
+    return array("success", "Badges successfully reset to 'not printed'.");
 
 }

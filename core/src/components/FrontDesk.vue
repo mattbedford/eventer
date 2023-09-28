@@ -36,8 +36,7 @@
                     Guest checked in
                   </span>
                   <button
-                    v-if="props.row.printed === '0'"
-                    style="display:flex;
+                      style="display:flex;
                       width:70px;
                       align-items:center;
                       justify-content:space-between;
