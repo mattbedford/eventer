@@ -592,5 +592,5 @@ tr.abandoned td {
     margin-left:15px;
     max-width:70px !important;
     background:#7fc41c !important;
-    margin-left: auto;
+    margin-left: auto !important;
  }

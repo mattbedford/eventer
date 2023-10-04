@@ -66,7 +66,7 @@
             text-decoration: none;
             border:none;
             cursor:pointer;">
-          Print all badges
+          Reset all badges
         </button>
       </div>
   </div>

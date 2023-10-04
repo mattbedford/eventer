@@ -40,6 +40,8 @@
                       width:70px;
                       align-items:center;
                       justify-content:space-between;
+                      margin-left:auto;
+                      background: #7fc41c;
                       padding-right:10px;"
                       class="check-button print"
                       @click="printBadge(props.row.id)">
