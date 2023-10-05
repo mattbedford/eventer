@@ -438,7 +438,7 @@ export default {
       this.oneToEdit = {};
     },
     rowStyleClassFn(row) {
-      return row.payment_status === 'Pending' ? 'abandoned' : 'normal';
+      return row.payment_status === 'pending' ? 'abandoned' : 'normal';
     },
     checkSuspiciousFields(rowObj) {
       let score = 0;

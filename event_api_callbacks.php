@@ -241,6 +241,14 @@ function delete_existing_registration($data) {
     $coupon = $data['coupon_code'];
 	global $wpdb;
 	$reg_table = $wpdb->prefix . 'registrations';
+    
+    // Also remove from hubspot list
+    $vid = $wpdb->get_var( $wpdb->prepare( "SELECT hubspot_id from $reg_table where id = %d", $id ) );
+    if($vid !== 'Error') {
+        require_once plugin_dir_path( __DIR__ ) . 'eventer/checkout-scripts/HubspotTool.php';
+        $res = HubspotTool::removeRegistrantFromHubspotList($vid);
+    }
+
 	$res = $wpdb->delete( $reg_table, array( 'id' => $id ) );
     if($res !== false) {
         $coupon_post = get_page_by_title($coupon, OBJECT, 'invitation');
@@ -249,6 +257,7 @@ function delete_existing_registration($data) {
             $min--;
             update_post_meta($coupon_post->ID, 'actual_uses', $min);
         }
+        
         return array("Success", "Registration deleted successfully.");
     }
     return array("Uh oh", "Registration could not be deleted, sorry.");
@@ -397,6 +406,12 @@ function create_new_coupon($data) {
 	} else {
 		$for_guests = false;
 	}
+
+    require_once( ABSPATH . 'wp-admin/includes/post.php' );
+    $exists_already_check = post_exists($data['coupon_title']);
+    if(0 !== $exists_already_check) {
+        return array('Uh oh.', 'A coupon/invitation with this title already exists. Please try using a different code.');
+    }
 
     //If non-named coupon/invitation...
     if($data['recipient_id'] === "other") {

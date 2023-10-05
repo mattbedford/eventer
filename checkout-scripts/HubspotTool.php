@@ -51,6 +51,22 @@ class HubspotTool {
 
     }
 
+    public static function removeRegistrantFromHubspotList($vid) {
+        $list_id = get_option('hubspot_list');
+	    $url = "https://api.hubapi.com/contacts/v1/lists/" . $list_id . "/remove";
+
+        $fields = array(
+            'vids' => array(
+                $vid
+            )
+        );
+
+	    $fields_string = json_encode($fields);
+	
+	    $response = self::triggerHubspotCurl($url, $fields_string);
+
+    }
+
 
     
     public static function checkEmailInHubspot($email) {
