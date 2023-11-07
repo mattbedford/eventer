@@ -29,6 +29,7 @@ function all_event_options() {
         "badge_company_format",
         "badge_job_format",
         "badge_name_format",
+	"badge_namebreak",
     );
     $return_array = array();
 
@@ -77,6 +78,7 @@ function set_the_options($args) {
             "badge_company_format",
             "badge_job_format",
             "badge_name_format",
+	    "badge_namebreak",
     );
     $errors = array();
 
