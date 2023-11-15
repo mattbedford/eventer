@@ -250,6 +250,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
                         <option value="Uganda">Uganda</option>
                         <option value="Ukraine">Ukraine</option>
                         <option value="UAE">UAE</option>
+                        <option value="United Kingdom">United Kingdom</option>
                         <option value="United States">United States</option>
                         <option value="Uruguay">Uruguay</option>
                         <option value="Uzbekistan">Uzbekistan</option>
