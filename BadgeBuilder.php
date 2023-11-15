@@ -193,7 +193,12 @@ class BadgeBuilder {
         $dagora_blue = array(0,132,203);
         $dagora_green = array(140, 198, 63);
 
-
+        // Split name field?
+        if(get_option('badge_namebreak')) {
+            $name_field = $this->first_name . "\n" . $this->last_name;
+        } else {
+            $name_field = $this->first_name . " " . $this->last_name;
+        }
 
         $name = array(
             'width' => 85,
@@ -201,7 +206,7 @@ class BadgeBuilder {
             'color' => $black,
             'font_size' => 15,
             'caps' => true,
-            'text' => $this->first_name . "\n" . $this->last_name,
+            'text' => $name_field,
             'reset' => true,
             'align' => 'L',
         );
