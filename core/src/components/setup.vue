@@ -102,9 +102,9 @@
             <br>
             <hr>
             <p>Badge <strong>name field</strong></p>
-            <label>
-              <input type="checkbox" v-model="badges.badge_namebreak"/>
-              Break name into two lines?
+            <label for="namebreak" style="display:flex;flex-direction: row;">
+              <input type="checkbox" name="namebreak" v-model="badges.badge_namebreak"/>
+              <span style="position: relative;top: -3px;">Break name into two lines?</span>
             </label>
             <div class="double">
               <label for="bnamecolor">Color
