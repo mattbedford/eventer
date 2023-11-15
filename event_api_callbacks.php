@@ -82,6 +82,8 @@ function set_the_options($args) {
     );
     $errors = array();
 
+    update_option('badge_namebreak', NULL);
+
     foreach($data as $key => $val) {
         $new_option = strval($key);
         if(is_array($val)) {
