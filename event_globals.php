@@ -42,6 +42,21 @@ add_action( 'template_include', 'success_page_setup' );
 
 
 
+function get_badge_page_setup( $template ) {
+
+	if ( is_page( 'get-badge' )) {
+
+			$plugindir = dirname( __FILE__ );
+			$template = $plugindir . '/templates/get_badge_template.php';
+	}
+	return $template;
+
+}
+add_action( 'template_include', 'get_badge_page_setup' );
+
+
+
+
 //Form error handling 
 add_action('wp_footer', 'show_code_error');
 function show_code_error() {

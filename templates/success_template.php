@@ -16,6 +16,7 @@ if(isset($_GET['coupon']) && !empty($_GET['coupon'])) {
 	run_free_coupon_script($coupon_code);
 }
 
+$badge_link = null;
 
 function run_stripe_checkout_session_check() {
 	if( !class_exists( 'Stripe' ) ) {
@@ -62,9 +63,10 @@ function run_stripe_checkout_session_check() {
 		$hs_id = $wpdb->get_var($wpdb->prepare("SELECT hubspot_id FROM {$wpdb->prefix}registrations WHERE id = '%s'", $database_record_id) );
 		if(!empty($hs_id)) {
 			HubspotTool::addRegistrantToHubspotList($hs_id);
+			if(!empty($row[0]->hubspot_id) && $row->hubspot_id !== "Error" && !empty($row[0]->email)) {
+				$badge_link = "<a class='btn' href='/get-badge?token=" . $row[0]->hubspot_id . "&email=" . $row[0]->email . "'>Get your event badge here</a>";
+			}
 		}
-		
-		
 		
 	} elseif(!$result) {
 		//We have a user who was not found in our registrations DB table
@@ -130,6 +132,9 @@ function run_free_coupon_script($coupon_code) {
 	</style>
 
 	<?php
+
+	grab_badge_for_coupon_user();
+
 	echo "<div class='success'>";
 	echo '<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176 217.6 336 160 272"/></svg>';
 	echo "<h1>Congrats!</h1></br>";
@@ -137,8 +142,37 @@ function run_free_coupon_script($coupon_code) {
 	echo " using coupon code <span class='code'>" . $coupon_code . "</span>";
 	echo " and we can't wait to see you there!</p>";
 	echo "<h3>Important: Within 24 hours you'll receive your email confirmation.</h3>";
-	echo "Click <a href='/'>here</a> to continue exploring the themes and speakers of the big day!";
+	if($badge_link && $badge_link !== null) {
+		echo $badge_link;
+	} else {
+		echo "<p>Click <a href='/'>here</a> to continue exploring the themes and speakers of the big day!</p>";
+	}
 }
+
+
+function grab_badge_for_coupon_user() {
+	if(isset($_GET['session_id']) && !empty($_GET['session_id'])) {
+		$session_id = htmlspecialchars($_GET['session_id']);
+
+		global $wpdb;
+		$row = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}registrations WHERE id = '%s'", $session_id) );
+	} 
+
+	if(!$row || empty($row)) {
+		return;
+	}
+
+	$hs_id = $row[0]->hubspot_id;
+	$email = $row[0]->email;
+
+	if(empty($hs_id) || $hs_id == "Error" || empty($email)) {
+		return;
+	}
+
+	$badge_link = "<a class='btn' href='/get-badge?token=" . $hs_id . "&email=" . $email . "'>Get your event badge here</a>";
+
+}
+
 
 function bail_we_have_a_problem($message) {
 	?>
@@ -254,5 +288,9 @@ function run_success_message() {
 	echo "<p>You have successfully purchased your ticket for " . get_option('event_name');  
 	echo ". We can't wait to see you at our event!</p>";
 	echo "<h3>Important: Within 24 hours you'll receive your email confirmation.</h3>";
-	echo "Click <a href='/'>here</a> to continue exploring the themes and speakers of the big day!";
+	if($badge_link && $badge_link !== null) {
+		echo $badge_link;
+	} else {
+		echo "<p>Click <a href='/'>here</a> to continue exploring the themes and speakers of the big day!</p>";
+	}
 }

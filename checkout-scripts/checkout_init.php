@@ -51,7 +51,7 @@ if(isset($form_data['coupon']) && !empty($form_data['coupon'])) {
 
         case 'zerotopay':
             $registration->confirmFreeUser();
-            header("Location: " . site_url() . "/success?coupon=" . $coupon_instance->coupon_code);
+            header("Location: " . site_url() . "/success?coupon=" . $coupon_instance->coupon_code . "&session_id=" . $registration->registration_id);
             exit;
             break;
 

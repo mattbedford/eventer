@@ -45,6 +45,7 @@ class BadgeBuilder {
     // Computed props
     public $badge_filename;
     public $template_file;
+    public $barcode;
     
 
 
@@ -68,6 +69,8 @@ class BadgeBuilder {
 
             $this->set_badge_url();
             $this->set_badge_filename();
+            // Create barcode for badge
+            $this->create_barcode();
             $this->build_badge();
 
         }
@@ -382,6 +385,8 @@ class BadgeBuilder {
         // Write company on p2
         $this->print_badge_text($company, $this->page_2_x_coord, $this->page_2_y_coord, $pdf);
 
+        $this->paste_in_badge_barcode($pdf);
+
 
         // Storing URL of file to download in the object output var
         if($this->is_single_badge === true) {
@@ -396,6 +401,25 @@ class BadgeBuilder {
     }
 
     
+    private function create_barcode() {
+
+        // Create barcode for badge
+        $barcode = new \Com\Tecnick\Barcode\Barcode();
+        $result = $barcode->getBarcodeObj('C128A', $this->registration_id, -3, -30, 'black', array(0, 0, 0, 0));
+        //$this->barcode = <p><img alt=\"Embedded Image\" src=\"data:image/png;base64," . base64_encode($result->getPngData()) . "\" /></p>
+        $this->barcode = base64_encode($result->getPngData());
+        //$this->barcode = $result->getPngData();
+
+    }
+
+
+    private function paste_in_badge_barcode($pdf) {
+
+        $pdf->Image('data:image/png;base64,' . $this->barcode, 51, 134, 0, 0, 'PNG');
+
+        $pdf->Image('data:image/png;base64,' . $this->barcode, 155, 134, 0, 0, 'PNG');
+
+    }
 
 
     private function print_badge_text($opts, $x, $y, $pdf) {
