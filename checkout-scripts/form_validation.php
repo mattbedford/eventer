@@ -51,18 +51,26 @@ function full_field_check($data) {
 	//Take out optional fields from sanitized array
 	$title_field = null;
 	$mobile_field = null;
+$company_type_field = null;
 	if(!empty($data['title'])) $title_field = $data['title'];
 	if(!empty($data['mobile']))	$mobile_field = $data['mobile'];
+if(!empty($data['my_company_is']))	$company_type_field = $data['my_company_is'];
 	unset($data['mobile']);
 	unset($data['title']);
+unset($data['my_company_is']);
 	
 	foreach($data as $field_name => $value) {
 		if($value == "" || $value == " " || empty($value)) {
 			$error_fields[] = $field_name;
+			$error_type = "missing fields";
+		}
+		if(is_string($value) && strlen($value) > 80) {
+			$error_fields[] = $field_name;
+			$error_type = "incorrect data supplied";
 		}
 	}
 	if(!empty($error_fields)) {
-		$res = send_return_array('error', 'missing fields', $error_fields);
+		$res = send_return_array('error', $error_type, $error_fields);
 		return $res;
 	}
 	
@@ -82,6 +90,7 @@ function full_field_check($data) {
 
 	if(!empty($title_field)) $data['title'] = $title_field;
 	if(!empty($mobile_field)) $data['mobile'] = $mobile_field;
+if(!empty($company_type_field)) $data['my_company_is'] = $company_type_field;
 	
 	//Else, all looks good
 	$res = send_return_array('success', 'all fields valid', $data);

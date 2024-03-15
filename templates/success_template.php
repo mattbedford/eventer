@@ -133,7 +133,7 @@ function run_free_coupon_script($coupon_code) {
 
 	<?php
 
-	grab_badge_for_coupon_user();
+	$badge_link = grab_badge_for_coupon_user();
 
 	echo "<div class='success'>";
 	echo '<svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path fill="none" stroke="currentColor" stroke-miterlimit="10" stroke-width="32" d="M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M352 176 217.6 336 160 272"/></svg>';
@@ -159,17 +159,16 @@ function grab_badge_for_coupon_user() {
 	} 
 
 	if(!$row || empty($row)) {
-		return;
+		return null;
 	}
 
 	$hs_id = $row[0]->hubspot_id;
 	$email = $row[0]->email;
 
 	if(empty($hs_id) || $hs_id == "Error" || empty($email)) {
-		return;
+		return null;
 	}
-
-	$badge_link = "<a class='btn' href='/get-badge?token=" . $hs_id . "&email=" . $email . "'>Get your event badge here</a>";
+return "<a class='btn' href='/get-badge?token=" . $hs_id . "&email=" . $email . "'>Get your event badge here</a>";
 
 }
 

@@ -75,6 +75,12 @@ if(is_page('checkout') && isset($_GET['status']) && $_GET['status'] === 'error')
 						$details .= "Try to look at these field(s) again: " . $_GET['fields'];
 					}
 				}
+if($mex == "incorrect data supplied" || $mex == "incorrect%20data%20supplied" || $mex == "incorrect data") {
+					$details = "One or more of the form fields seems to be malformatted.";
+					if(isset($_GET['fields'])) {
+						$details .= "Try to look at these field(s) again: " . $_GET['fields'];
+					}
+				}
 				if($mex == "invalidemail") {
 					$details = "Something was wrong with your email address.";
 				}

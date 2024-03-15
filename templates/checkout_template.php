@@ -315,9 +315,9 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
                 </div>
             </div>
             
-            <div class="input">
+            <div class="input" style="display:none;">
                 <label for="my_company_is">Tell us what kind of company it is <span class="req">*</span></label>
-                <select name="my_company_is" id="my_company_is" required>
+                <select name="my_company_is" id="my_company_is">
                     <option disabled="" value="">What kind of company is yours?</option>
                     <option value="Brand, Retailer, Manufacturer or Online Shop">Brand, Retailer, Manufacturer or Online Shop</option>
                     <option value="Investor, Family Office,">Investor, Family Office, Business Angel</option>
@@ -325,7 +325,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
                     <option value="Public Administration / Institution">Public Administration / Institution</option>
                     <option value="Research Institute, University, School">Research Institute, University, School</option>
                     <option value="Vendor / Supplier of Services">Vendor / Supplier of Services for Innovation and e-Commerce</option>
-                    <option value="Other">Other</option>
+                    <option value="Other" selected="selected">Other</option>
                 </select>
             </div>
             
