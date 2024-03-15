@@ -138,7 +138,7 @@ add_action('rest_api_init', function () {
   });
 
 
-// NEW VERSION 6
+// NEW VERSION 6.
 //Print badges - site_url()/wp-json/core-vue/print-badge
 add_action('rest_api_init', function () {
     register_rest_route( 'core-vue', '/print-badge',array(
