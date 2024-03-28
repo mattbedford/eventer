@@ -48,7 +48,7 @@ function do_eventer() {
 	add_menu_page( 
 		'Eventer',
 		'Mission control',
-		'manage_options',
+		'edit_pages',
 		'eventer',
 		'event_setup',
 		'dashicons-admin-site-alt3', 
