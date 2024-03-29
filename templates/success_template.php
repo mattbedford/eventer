@@ -160,12 +160,14 @@ function grab_badge_for_coupon_user() {
 
 	if(!$row || empty($row)) {
 		return null;
+		return null;
 	}
 
 	$hs_id = $row[0]->hubspot_id;
 	$email = $row[0]->email;
 
 	if(empty($hs_id) || $hs_id == "Error" || empty($email)) {
+		return null;
 		return null;
 	}
 	return "<a class='btn' href='/get-badge?token=" . $hs_id . "&email=" . $email . "'>Get your event badge here</a>";

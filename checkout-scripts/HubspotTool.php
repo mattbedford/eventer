@@ -96,11 +96,7 @@ class HubspotTool {
 
     public static function createNewHubspotPerson($data) {
         $url = "https://api.hubapi.com/contacts/v1/contact/createOrUpdate/email/" . $data['email'];
-    
-        if (isset($data['my_company_is']) && strpos($data['my_company_is'], 'Media') !== false) {
-            $data['my_company_is'] = "Media & Press";
-        }
-
+       
         $fields = array(
             'properties' => array(
                 array(
@@ -171,12 +167,7 @@ class HubspotTool {
                     'value'	=> $data['tags']
                 );
         }
-        if(!empty($data['my_company_is'])) {
-            $fields['properties'][] = array(
-                'property' => 'company_type',
-                'value' => $data['my_company_is']
-            );
-        }
+        
         
         $fields_string = json_encode($fields);
 

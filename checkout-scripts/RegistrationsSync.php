@@ -127,7 +127,8 @@ class RegistrationsSync {
         $result['lname'] = $this->validate_hubspot_return_vals('surname', $keyval_arr['lastname']);
         $result['email'] = $this->validate_hubspot_return_vals('email', $keyval_arr['email']);
         $result['company'] = $this->validate_hubspot_return_vals('company', $keyval_arr['company']);
-        $result['my_company_is'] = $this->validate_hubspot_return_vals('company_type', $keyval_arr['company_type']);
+        $result['my_company_is'] = "Other";
+        //$result['my_company_is'] = $this->validate_hubspot_return_vals('company_type', $keyval_arr['company_type']);
         $result['role'] = $this->validate_hubspot_return_vals('role', $keyval_arr['jobtitle']);
         $result['office_phone'] = $this->validate_hubspot_return_vals('office_phone', $keyval_arr['phone']);
         $result['website'] = $this->validate_hubspot_return_vals('website', $keyval_arr['website']);
