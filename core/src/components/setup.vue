@@ -114,6 +114,7 @@
                 <option value="luxury">Luxury</option>
                 <option value="blue">Dagorà blue</option>
                 <option value="green">Dagorà green</option>
+                <option value="purple">Dagorà purple</option>
               </select>
               </label>
               <label for="bnamefontsize">Font size
@@ -146,6 +147,7 @@
                 <option value="luxury">Luxury</option>
                 <option value="blue">Dagorà blue</option>
                 <option value="green">Dagorà green</option>
+                <option value="purple">Dagorà purple</option>
               </select>
               </label>
               <label for="bjobfontsize">Font size
@@ -178,6 +180,7 @@
                 <option value="luxury">Luxury</option>
                 <option value="blue">Dagorà blue</option>
                 <option value="green">Dagorà green</option>
+                <option value="purple">Dagorà purple</option>
               </select>
               </label>
               <label for="bcompfontsize">Font size

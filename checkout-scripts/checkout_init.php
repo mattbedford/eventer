@@ -20,6 +20,7 @@ $form_is_valid = validate_the_form($_POST);
 if($form_is_valid[0] === "error") send_back_with_errors($form_is_valid); 
 $form_data = $form_is_valid[2];
 
+
 // Add user to database (also generate their hubspot ID)
 $registration = new EventerRegistration($form_data);
 
@@ -115,8 +116,8 @@ function do_stripe_routine($reg_obj, $coupon_obj = null) {
 
 
 function send_back_with_errors($form_is_valid){
-	$errs = implode(",", $form_is_valid[2]);
+	$errs = implode('&fields[]=', $form_is_valid[2]);
 	$msg = $form_is_valid[1];
-	header("Location: " . site_url() . "/checkout/?status=error&msg=" . $msg . "&fields=" . $errs);
+	header("Location: " . site_url() . "/checkout/?status=error&msg=" . $msg . '&fields[]=' . $errs);
 	exit;
 }

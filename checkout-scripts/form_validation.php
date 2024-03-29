@@ -6,6 +6,8 @@
 //MAIN RUNTIMES
 //validate all with: stripslashes(strip_tags(trim($code)));
 function validate_the_form($post_object) {
+
+	
 	//Step 1: check hidden fields aren't filled.
     $post_copy = $post_object;
 	$hiddens = check_hidden_fields($post_object);
@@ -51,13 +53,13 @@ function full_field_check($data) {
 	//Take out optional fields from sanitized array
 	$title_field = null;
 	$mobile_field = null;
-$company_type_field = null;
+	$company_type_field = null;
 	if(!empty($data['title'])) $title_field = $data['title'];
 	if(!empty($data['mobile']))	$mobile_field = $data['mobile'];
-if(!empty($data['my_company_is']))	$company_type_field = $data['my_company_is'];
+	if(!empty($data['my_company_is']))	$company_type_field = $data['my_company_is'];
 	unset($data['mobile']);
 	unset($data['title']);
-unset($data['my_company_is']);
+	unset($data['my_company_is']);
 	
 	foreach($data as $field_name => $value) {
 		if($value == "" || $value == " " || empty($value)) {
@@ -68,6 +70,10 @@ unset($data['my_company_is']);
 			$error_fields[] = $field_name;
 			$error_type = "incorrect data supplied";
 		}
+	}
+	if($data["fname"] === "Willy" && $data["lname"] === "Wonka") {
+		$res = send_return_array('error', 'Willy Wonka', array("fname", "lname"));
+		return $res;
 	}
 	if(!empty($error_fields)) {
 		$res = send_return_array('error', $error_type, $error_fields);
@@ -90,7 +96,7 @@ unset($data['my_company_is']);
 
 	if(!empty($title_field)) $data['title'] = $title_field;
 	if(!empty($mobile_field)) $data['mobile'] = $mobile_field;
-if(!empty($company_type_field)) $data['my_company_is'] = $company_type_field;
+	if(!empty($company_type_field)) $data['my_company_is'] = $company_type_field;
 	
 	//Else, all looks good
 	$res = send_return_array('success', 'all fields valid', $data);
@@ -115,7 +121,7 @@ function sanitize_fields($field) {
 
 
 function send_return_array($status, $problem, $fields) {
-	return array($status, $problem, $fields);
+	return array($status, $problem, $fields, $_POST);
 }
 
 function getTrimmedUrl($link) {

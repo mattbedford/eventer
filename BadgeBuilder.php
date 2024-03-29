@@ -195,6 +195,7 @@ class BadgeBuilder {
         $luxury = array(210, 189, 142);
         $dagora_blue = array(0,132,203);
         $dagora_green = array(140, 198, 63);
+        $dagora_purple = array(131, 87, 164);
 
         // Split name field?
         if(get_option('badge_namebreak')) {
@@ -260,6 +261,10 @@ class BadgeBuilder {
                         $name['color'] = $dagora_green;
                         break;
                     
+                    case 'purple':
+                        $name['color'] = $dagora_purple;
+                        break;
+                    
                     default:
                         $name['color'] = $name['color'];
                         break;
@@ -302,6 +307,10 @@ class BadgeBuilder {
                         $job['color'] = $dagora_green;
                         break;
                     
+                    case 'purple':
+                        $job['color'] = $dagora_purple;
+                        break;
+                    
                     default:
                         $job['color'] = $job['color'];
                         break;
@@ -341,6 +350,10 @@ class BadgeBuilder {
 
                     case 'green':
                         $company['color'] = $dagora_green;
+                        break;
+                    
+                    case 'purple':
+                        $company['color'] = $dagora_purple;
                         break;
                     
                     default:

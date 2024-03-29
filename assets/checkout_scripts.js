@@ -8,6 +8,7 @@ jQuery( document ).ready(function() {
 
 	jQuery('.checkout-form').submit(function(event) {
 		event.preventDefault();
+		storeFormSession(document.getElementById("checkout-form"));
 		if(submitOnce < 2) {
 			submitOnce++;
 			let emailOk = runOwnEmailCheck();
@@ -26,6 +27,20 @@ jQuery( document ).ready(function() {
 			document.querySelector(".checkout-form").submit();
 		}
 	});
+	
+	
+	jQuery.urlParam = function(name){
+		var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+		if (results==null) {
+		   return null;
+		}
+		return decodeURI(results[1]) || 0;
+	}
+
+	if(jQuery.urlParam('status') && jQuery.urlParam('status') == "error") {
+		refillFields();
+	}
+	
 });
 
 function runOwnEmailCheck() {
@@ -105,6 +120,47 @@ jQuery('#apply-me').click(function(){
 }) 
 
 
+function storeFormSession(target) {
+	
+	let data = {
+		title: jQuery('#title').val() ?? "",
+		email: jQuery('#email').val() ?? "",
+		fname: jQuery('#fname').val() ?? "",
+		lname: jQuery('#lname').val() ?? "",
+		company: jQuery('#company').val() ?? "",
+		website: jQuery('#website').val() ?? "",
+		role: jQuery('#role').val() ?? "",
+		office: jQuery('#office').val() ?? "",
+		mobile: jQuery('#mobile').val() ?? "",
+		address: jQuery('#address').val() ?? "",
+		postcode: jQuery('#postcode').val() ?? "",
+		city: jQuery('#city').val() ?? "",
+	};
+	
+	for (const property in data) {
+	  sessionStorage.setItem(`dagora-${property}`, `${data[property]}`);
+	}
+}
+
+
+function refillFields() {
+	
+		jQuery('#title').val(sessionStorage.getItem("dagora-title"));
+		jQuery('#email').val(sessionStorage.getItem("dagora-email"));
+		jQuery('#fname').val(sessionStorage.getItem("dagora-fname"));
+		jQuery('#lname').val(sessionStorage.getItem("dagora-lname"));
+		jQuery('#company').val(sessionStorage.getItem("dagora-company"));
+		jQuery('#website').val(sessionStorage.getItem("dagora-website"));
+		jQuery('#role').val(sessionStorage.getItem("dagora-role"));
+		jQuery('#office').val(sessionStorage.getItem("dagora-office"));
+		jQuery('#mobile').val(sessionStorage.getItem("dagora-mobile"));
+		jQuery('#address').val(sessionStorage.getItem("dagora-address"));
+		jQuery('#postcode').val(sessionStorage.getItem("dagora-postcode"));
+		jQuery('#city').val(sessionStorage.getItem("dagora-city"));
+	
+}
+
+
 function checkThisCoupon(e) {
 		let couponData = Array();
 		couponData.push( { "name" : "action", "value" : "check_submitted_coupon" } );
@@ -148,4 +204,6 @@ function checkThisCoupon(e) {
 		});
 		return false;    
 	}
+	
+
 	

@@ -5,7 +5,9 @@
 max-width:1300px;
 margin:20px auto;
 }
-
+form .input *.error {
+    border:2px solid #c14444;
+}
 #page {
 margin:0 !important;
 max-width:100% !important;

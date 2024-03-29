@@ -209,6 +209,10 @@
               @click="editRegistration('delete')">
               Delete registration
             </button>
+            <div style="background:#efefef;padding:10px;font-size:12px;color:#3a3a3a;margin:10px;width:100%;">
+              Caution: When you delete a registration it will remove EVERYONE with that email from our event list (and on Hubspot).
+              If you need to remove duplicates, delete <em>all</em> users from the site with that email address and then add them again.
+            </div>
           </div>
         </form>
       </div>

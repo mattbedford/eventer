@@ -3,6 +3,11 @@
  * Template Name: Checkout template
  */
 
+$gets = $_GET;
+if(!empty($gets["fields"])) {
+	echo "<script>const errs = " .json_encode($gets["fields"]) . "</script>";
+}
+
 get_header();
 
 //Check global event vars are in place before we try to do anything
@@ -18,7 +23,7 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
 
 <h2>Register for <?php echo get_option('event_name'); ?></h2>
 
-<form class="checkout-form" action="<?php echo $stripe_init_location; ?>" method="POST">
+<form id="checkout-form" class="checkout-form" action="<?php echo $stripe_init_location; ?>" method="POST">
     <div class="section-1">
         <input type="hidden" name="source_event" value="<?php echo get_option('event_tag'); ?>">
         <input type="hidden" name="required" value="">
@@ -30,16 +35,16 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
             <div class="form-flexer">
                 <div class="input">
                     <label for="title">Title (Optional)</label>
-                    <input type="text" name="title" id="title" placeholder="Mr/Ms/Other">
+                    <input type="text" name="title" id="title" placeholder="Mr/Ms/Other" value="<?php echo $orig['title'] ?? ''; ?>">
                 </div>
                 <div class="input">
                     <label for="fname">First name <span class="req">*</span></label>
-                    <input type="text" name="fname" id="fname" required="">
+                    <input type="text" name="fname" id="fname" required="" value="<?php echo $orig['fname'] ?? ''; ?>">
                 </div>
 
                 <div class="input">
                 <label for="lname">Last name <span class="req">*</span></label>
-                <input type="text" name="lname" id="lname" required="">
+                <input type="text" name="lname" id="lname" required="" value="<?php echo $orig['lname'] ?? ''; ?>">
                 </div>
             </div>
 
@@ -266,11 +271,11 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
             <div class="form-flexer">
                 <div class="input">
                     <label for="role">Job title <span class="req">*</span></label>
-                    <input type="text" name="role" id="role" required="">
+                    <input type="text" name="role" id="role" required="" value="<?php echo $orig['role'] ?? ''; ?>">
                 </div>
                 <div class="input">
                     <label for="email">Email<span class="req">* (Your own work email)</span></label>
-                    <input type="email" name="email" id="email" required="">
+                    <input type="email" name="email" id="email" required="" value="<?php echo $orig['email'] ?? ''; ?>">
                 </div>
                 
             </div>
@@ -278,11 +283,11 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
             <div class="form-flexer">
                 <div class="input">
                     <label for="Mobile">Mobile phone (optional)</label>
-                    <input type="tel" name="mobile" id="mobile" placeholder="+41">
+                    <input type="tel" name="mobile" id="mobile" placeholder="+41" value="<?php echo $orig['mobile'] ?? ''; ?>">
                 </div>
                 <div class="input">
                     <label for="office">Office phone <span class="req">*</span></label>
-                    <input type="tel" name="office" id="office" required="">
+                    <input type="tel" name="office" id="office" required="" value="<?php echo $orig['office'] ?? ''; ?>">
                 </div>
             </div>
         </div>
@@ -307,11 +312,11 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
             <div class="form-flexer">
                 <div class="input">
                     <label for="company">Company name <span class="req">*</span></label>
-                    <input type="text" name="company" id="company" required="">
+                    <input type="text" name="company" id="company" required="" value="<?php echo $orig['company'] ?? ''; ?>">
                 </div>
                 <div class="input">
                     <label for="website">Website url (including 'https://') <span class="req">*</span></label>
-                    <input type="url" name="website" id="website" placeholder="https://yourwebsite.com" required="">
+                    <input type="url" name="website" id="website" placeholder="https://yourwebsite.com" required="" value="<?php echo $orig['website'] ?? ''; ?>">
                 </div>
             </div>
             
@@ -331,18 +336,18 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
             
             <div class="input">
                 <label for="address">Street address <span class="req">*</span></label>
-                <input type="text" name="address" id="address" required="">
+                <input type="text" name="address" id="address" required="" value="<?php echo $orig['address'] ?? ''; ?>">
             </div>
             
             <div class="form-flexer">
                 <div class="input">
                     <label for="postcode">Postcode <span class="req">*</span></label>
-                    <input type="text" name="postcode" id="postcode" required="">
+                    <input type="text" name="postcode" id="postcode" required="" value="<?php echo $orig['postcode'] ?? ''; ?>">
                 </div>
 
                 <div class="input">
                     <label for="city">City <span class="req">*</span></label>
-                    <input type="text" name="city" id="city" required="">
+                    <input type="text" name="city" id="city" required="" value="<?php echo $orig['city'] ?? ''; ?>">
                 </div>
             </div>
         </div>
@@ -380,3 +385,10 @@ $stripe_init_location = site_url() . "/wp-content/plugins/eventer/checkout-scrip
 </form>
 
 <?php get_footer(); ?>
+
+<script>
+if(errs) errs.forEach((x) => {
+    let e = document.getElementById(`${x}`)
+    e.classList.add("error")
+})
+</script>
