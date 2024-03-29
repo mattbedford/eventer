@@ -594,3 +594,11 @@ tr.abandoned td {
     background:#7fc41c !important;
     margin-left: auto !important;
  }
+
+ #edit-registrant .double:last-of-type {
+    flex-wrap:wrap;
+}
+
+#edit-registrant .double:last-of-type > div {
+    flex:0 1 100%;
+}
