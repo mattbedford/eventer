@@ -52,7 +52,7 @@ function run_stripe_checkout_session_check() {
 	$row = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}registrations WHERE id = '%s'", $database_record_id) );
 	$result = $row[0]->payment_status;
 	
-	if($result && $result === "pending" && $stripe_sesh->payment_status == "paid") {
+	if($result && strtolower($result) === "pending" && $stripe_sesh->payment_status == "paid") {
 		// We have a user from whom we expected payment and it has been paid.
 		// First update in DB, then add to HS list using new OOP methods.
 		
