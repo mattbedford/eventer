@@ -385,6 +385,8 @@ class BadgeBuilder {
         // Write job on p1
         $this->print_badge_text($job, $this->page_1_x_coord, $this->page_1_y_coord, $pdf);
 
+        $this->do_gap(20, $pdf);
+
         // Write company on p1
         $this->print_badge_text($company, $this->page_1_x_coord, $this->page_1_y_coord, $pdf);
 
@@ -394,6 +396,8 @@ class BadgeBuilder {
 
         // Write job on p2
         $this->print_badge_text($job, $this->page_2_x_coord, $this->page_2_y_coord, $pdf);
+
+        $this->do_gap(20, $pdf);
 
         // Write company on p2
         $this->print_badge_text($company, $this->page_2_x_coord, $this->page_2_y_coord, $pdf);
@@ -535,6 +539,12 @@ class BadgeBuilder {
         $wpdb->query($sql);
 
     }
+
+
+    	private function do_gap($gap_size, $pdf) {
+		$current_y = $pdf->GetY();
+		$pdf->SetY($current_y + $gap_size);
+	}
 
 
 }
